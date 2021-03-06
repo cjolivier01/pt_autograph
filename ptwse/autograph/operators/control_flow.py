@@ -113,15 +113,57 @@ class control_flow_ops(object):
     """
     Implement some control-flow ops
     """
+    
+    @staticmethod
+    def unbool(val):
+        if val.dtype == torch.bool:
+            val = torch.tensor(
+                val.detach(),
+                device=val.device, 
+                dtype=torch.uint8,
+            )
+            if not len(val.shape):
+                val = torch.reshape(val, [1])
+        return val
+
+    @staticmethod
+    def normalize_value(val):
+        state = None
+        if isinstance(val, tuple):
+            if len(val) > 1:
+                assert len(val) == 2
+                state = val[1]
+            val = val[0]
+        return control_flow_ops.unbool(val), state
+    
     @staticmethod
     def cond(test_value, true_value, false_value):
+        state = None
         if callable(test_value):
             test_value = test_value()
+            test_value, state = control_flow_ops.normalize_value(
+                test_value
+            )
         if callable(true_value):
             true_value = true_value()
+            true_value, state = control_flow_ops.normalize_value(
+                true_value
+            )
         if callable(false_value):
             false_value = false_value()
-        return torch.where(test_value, true_value, false_value)
+            false_value, state = control_flow_ops.normalize_value(
+                false_value
+            )
+        cond_value = torch.tensor(
+            test_value, 
+            device=test_value.device, 
+            dtype=torch.uint8,
+        )
+        return torch.where(
+            cond_value,
+            true_value, 
+            false_value
+        ), state
 
 
 # TODO(mdan): Use the custom operator pattern instead of type dispatch.

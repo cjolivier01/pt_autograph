@@ -29,6 +29,18 @@ from ptwse.autograph.operators import data_structures
 
 import torch
 
+class constant_op(object):
+    @staticmethod
+    def constant(like_value, value):
+        if torch.is_tensor(like_value):
+            return torch.tensor(
+                value, 
+                device=like_value.device,
+                dtype=like_value.dtype,
+            )
+        return value
+
+
 def _validate_list_constructor(elements, element_dtype, element_shape):
   """Validates the inputs of tensor_list."""
   if element_dtype is not None and element_shape is not None:
@@ -51,7 +63,7 @@ def _validate_list_constructor(elements, element_dtype, element_shape):
 def match_staging_level(value, like_value):
   """Casts a value to be staged at the same level as another."""
   if torch.is_tensor(like_value):
-    return constant_op.constant(value)
+    return constant_op.constant(value, like_value)
   return value
 
 

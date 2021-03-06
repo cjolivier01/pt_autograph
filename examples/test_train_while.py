@@ -57,8 +57,6 @@ import ptwse.flow.runner as runner
 import ptwse.stats as stats
 
 
-_MSE_LOSS = False
-
 import args_parse
 
 FLAGS = args_parse.parse_common_options(
@@ -74,7 +72,7 @@ FLAGS.steps_per_epoch = 50
 FLAGS.run_test = False
 FLAGS.step_print_interval = 10
 FLAGS.use_autograph = True
-FLAGS.with_while = True
+FLAGS.with_while = False
 FLAGS.log_steps = 1
 
 class MNIST(nn.Module):
@@ -86,16 +84,19 @@ class MNIST(nn.Module):
     def forward(self, x):
         x = x.view(size=[-1, 784])
         x = F.relu(self.fc1(x))
+        counter = torch.tensor(0, device=x.device)
         if self._flags.with_while:
-            counter = torch.tensor(0, device=x.device)
+            # Try a "while" statement
             while counter < 10:
                 x = F.relu(x)
                 counter = counter + 1
-        if _MSE_LOSS:
-            result = x
+
+        # Try an "if" statement
+        if counter < 4:
+            counter = counter + 1
         else:
-            result = F.log_softmax(x, dim=1)
-        return result
+            counter = counter - 1
+        return F.log_softmax(x, dim=1)
 
 
 def _train_update(device, step, loss, tracker, epoch, writer):
@@ -143,7 +144,7 @@ def train_mnist(FLAGS):
             torch.ones(dims, dtype=DTYPE,),
             torch.ones(
                 FLAGS.batch_size,
-                dtype=torch.int64 if not _MSE_LOSS else DTYPE,
+                dtype=torch.int64,
             ),
         ),
         sample_count=train_dataset_len
@@ -155,7 +156,7 @@ def train_mnist(FLAGS):
             torch.ones(dims, dtype=DTYPE,),
             torch.ones(
                 FLAGS.batch_size,
-                dtype=torch.int64 if not _MSE_LOSS else DTYPE,
+                dtype=torch.int64,
             ),
         ),
         sample_count=10000 // FLAGS.batch_size // xm.xrt_world_size(),
@@ -216,10 +217,7 @@ def train_mnist(FLAGS):
     def train_loop_fn(model, loader, device=None, context=None):
         lr_adder = 0.0
 
-        if _MSE_LOSS:
-            loss_fn = nn.MSELoss()
-        else:
-            loss_fn = nn.NLLLoss()
+        loss_fn = nn.NLLLoss()
         optimizer = context.getattr_or(
             'optimizer',
             lambda: optim.SGD(
