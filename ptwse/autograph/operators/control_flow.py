@@ -94,7 +94,6 @@ from ptwse.scope import (
 # from ptwse.util import lazy_loader
 # from ptwse.util import nest
 
-
 # TODO(b/145618471): Remove this dependency.
 # Lazy import to work around circular dependencies
 # input_lib = lazy_loader.LazyLoader(
@@ -105,6 +104,24 @@ PYTHON_MAX_ITERATIONS = 100000000  # Fails in about one minute for empty loops.
 WARN_INEFFICIENT_UNROLL = True
 INEFFICIENT_UNROLL_MIN_ITERATIONS = 3000
 INEFFICIENT_UNROLL_MIN_OPS = 1
+
+
+#
+# PYTORCH control_flow_ops
+#
+class control_flow_ops(object):
+    """
+    Implement some control-flow ops
+    """
+    @staticmethod
+    def cond(test_value, true_value, false_value):
+        if callable(test_value):
+            test_value = test_value()
+        if callable(true_value):
+            true_value = true_value()
+        if callable(false_value):
+            false_value = false_value()
+        return torch.where(test_value, true_value, false_value)
 
 
 # TODO(mdan): Use the custom operator pattern instead of type dispatch.
