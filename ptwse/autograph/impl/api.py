@@ -48,7 +48,7 @@ from ptwse.autograph.utils import ag_logging as logging
 # from ptwse.framework import errors_impl
 # from ptwse.util import tf_decorator
 from ptwse.util import tf_inspect
-# from ptwse.util import tf_stack
+from ptwse.util import tf_stack
 #from ptwse.util.tf_export import tf_export
 
 
@@ -121,36 +121,36 @@ class _ErrorMetadata(error_utils.ErrorMetadataBase):
     return StagingError(self.get_message())
 
 
-# class StackTraceMapper(tf_stack.StackTraceMapper):
-#   """Remaps generated code to code it originated from."""
-#
-#   def __init__(self, converted_fn):
-#     self._source_map = converted_fn.ag_source_map
-#
-#   def get_effective_source_map(self):
-#     effective_source_map = self._effective_source_map
-#     if effective_source_map is None:
-#       if self.parent is not None:
-#         parent_map = self.parent.get_effective_source_map()
-#       else:
-#         parent_map = {}
-#
-#       effective_source_map = {}
-#       for loc, origin in self._source_map.items():
-#         effective_source_map[(loc.filename, loc.lineno)] = (
-#             origin.loc.filename, origin.loc.lineno, origin.function_name)
-#
-#       for key, value in parent_map.items():
-#         filename, lineno, _ = value
-#         value_loc = origin_info.LineLocation(filename=filename, lineno=lineno)
-#         if value_loc in self._source_map:
-#           origin = self._source_map[value_loc]
-#           effective_source_map[key] = (
-#               origin.loc.filename, origin.loc.lineno, origin.function_name)
-#         else:
-#           effective_source_map[key] = value
-#       self._effective_source_map = effective_source_map
-#     return effective_source_map
+class StackTraceMapper(tf_stack.StackTraceMapper):
+  """Remaps generated code to code it originated from."""
+
+  def __init__(self, converted_fn):
+    self._source_map = converted_fn.ag_source_map
+
+  def get_effective_source_map(self):
+    effective_source_map = self._effective_source_map
+    if effective_source_map is None:
+      if self.parent is not None:
+        parent_map = self.parent.get_effective_source_map()
+      else:
+        parent_map = {}
+
+      effective_source_map = {}
+      for loc, origin in self._source_map.items():
+        effective_source_map[(loc.filename, loc.lineno)] = (
+            origin.loc.filename, origin.loc.lineno, origin.function_name)
+
+      for key, value in parent_map.items():
+        filename, lineno, _ = value
+        value_loc = origin_info.LineLocation(filename=filename, lineno=lineno)
+        if value_loc in self._source_map:
+          origin = self._source_map[value_loc]
+          effective_source_map[key] = (
+              origin.loc.filename, origin.loc.lineno, origin.function_name)
+        else:
+          effective_source_map[key] = value
+      self._effective_source_map = effective_source_map
+    return effective_source_map
 
 
 def autograph_artifact(entity, extras=None):

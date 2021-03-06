@@ -38,6 +38,7 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.fx as fx
 from torchvision import datasets, transforms
 import torch_xla
 import torch_xla.distributed.data_parallel as dp
@@ -74,6 +75,7 @@ FLAGS.step_print_interval = 10
 FLAGS.use_autograph = True
 FLAGS.with_while = False
 FLAGS.log_steps = 1
+FLAGS.use_fx = False
 
 class MNIST(nn.Module):
     def __init__(self, flags):
@@ -273,14 +275,21 @@ def train_mnist(FLAGS):
                 xm.master_print(f"Begin TRAIN Step: {step}")
             context.step = step
 
-            if not FLAGS.use_autograph:
-                outputs = train_inner_loop_fn((data, target), context)
-            else:
+            if FLAGS.use_fx:
+                assert not FLAGS.use_autograph
                 outputs = ptwse.flow.runner.maybe_run_converted(
                     train_inner_loop_fn,
                     (data, target),
                     context
                 )
+            elif FLAGS.use_autograph:
+                outputs = ptwse.flow.runner.maybe_run_converted(
+                    train_inner_loop_fn,
+                    (data, target),
+                    context
+                )
+            else:
+                outputs = train_inner_loop_fn((data, target), context)
 
         xm.master_print(f"Saving model...")
         _save_checkpoint(FLAGS, device, None, model, is_epoch=True)
@@ -402,13 +411,7 @@ def main(args):
     os.environ['XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
     os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
 
-    # parser = argparse.ArgumentParser(description='Run PyTorch test')
-    # parser.add_argument("--control_flow", action="store_true", default=False)
-
-    # args = parser.parse_args(args=args)
-
     try:
-        #torch.set_default_tensor_type('torch.HalfTensor')
         train_mnist(FLAGS)
         print("Exiting...")
 
