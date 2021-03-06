@@ -1,0 +1,10 @@
+.py_root
+.vscode
+.scripts
+/dist
+/build
+/venv
+*.pyc
+*.mdl
+/ptwse.egg-info
+browse.vsc.db*
