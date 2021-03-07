@@ -92,7 +92,7 @@ from ptag.scope import (
 # from ptag.ops import tensor_array_ops
 # from ptag.ops.ragged import ragged_tensor
 # from ptag.util import lazy_loader
-from ptag.util import nest
+#from ptag.util import nest
 
 # TODO(b/145618471): Remove this dependency.
 # Lazy import to work around circular dependencies
