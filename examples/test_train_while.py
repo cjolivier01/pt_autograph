@@ -169,7 +169,9 @@ def train_mnist(FLAGS):
     if xm.is_master_ordinal():
         writer = test_utils.get_summary_writer(FLAGS.logdir)
 
+    #
     # Just some step closure output
+    #
     def train_output_fn(outputs, ctx, args, tracker):
         if ctx.step > 0 and args.log_steps and ctx.step % args.log_steps == 0:
             now_time = time.time()
@@ -198,6 +200,9 @@ def train_mnist(FLAGS):
                 ctx.last_step_timed = ctx.step
         ctx.step += 1
 
+    #
+    # Train Epoch Function
+    #
     def train_loop_fn(model, loader, device=None, context=None):
         lr_adder = 0.0
 
@@ -216,6 +221,9 @@ def train_mnist(FLAGS):
         model.train()
         loss = None
 
+        #
+        # Train Step Function
+        #
         def train_inner_loop_fn(batch, ctx):
             step = ctx.step
             print(f'Step {step}')
@@ -247,7 +255,9 @@ def train_mnist(FLAGS):
             print(f"loss is on device: {loss.device}")
             return [loss]
 
-        # Train
+        #
+        # Train Step Loop
+        #
         print('Starting new epoch train loop... (epoch={epoch})')
         for step, (data, target) in enumerate(loader):
             if step % FLAGS.step_print_interval == 0:
@@ -269,24 +279,9 @@ def train_mnist(FLAGS):
         return loss
 
     #
-    # Set up
-    #
-    num_devices = (len(xm.xla_replication_devices(devices))
-                   if len(devices) > 1 else 1)
-
-    if not FLAGS.steps_per_epoch:
-        num_training_steps_per_epoch = train_dataset_len // (FLAGS.batch_size *
-                                                             num_devices)
-    else:
-        num_training_steps_per_epoch = FLAGS.steps_per_epoch
-
-    #
     # Epoch loop
     #
     for epoch in range(1, FLAGS.num_epochs + 1):
-        #
-        # Train
-        #
         device = xm.xla_device()
         ctx = dp.Context(device=device)
         ctx.tracker = xm.RateTracker()
