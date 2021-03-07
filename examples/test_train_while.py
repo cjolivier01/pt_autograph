@@ -51,11 +51,11 @@ import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.test.test_utils as test_utils
 
-# PTWSE
-import ptwse
-import ptwse.scope
-import ptwse.flow.runner as runner
-import ptwse.stats as stats
+# ptag
+import ptag
+import ptag.scope
+import ptag.flow.runner as runner
+import ptag.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
@@ -269,7 +269,7 @@ def train_mnist(FLAGS):
                 assert not FLAGS.use_autograph
                 assert False  # Will do this shortly
             elif FLAGS.use_autograph:
-                outputs = ptwse.flow.runner.maybe_run_converted(
+                outputs = ptag.flow.runner.maybe_run_converted(
                     train_inner_loop_fn, (data, target), context)
             else:
                 outputs = train_inner_loop_fn((data, target), context)

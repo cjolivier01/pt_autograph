@@ -6,5 +6,5 @@
 /venv
 *.pyc
 *.mdl
-/ptwse.egg-info
+/ptag.egg-info
 browse.vsc.db*

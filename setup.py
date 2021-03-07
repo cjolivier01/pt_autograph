@@ -92,27 +92,27 @@ class CMakeBuild(build_ext):
                           cwd=self.build_temp)
     print()  # Add an empty line for cleaner output
 
-#shlibs = glob.glob(os.path.join('ptwse', '*.so'))
+#shlibs = glob.glob(os.path.join('ptag', '*.so'))
 
 #
 # CMake build files not yet included
 #
 
 setup(
-  name = 'ptwse',
+  name = 'ptag',
   description='Cerebras Pytorch Integration',
   author='Cerebras Systems',
   author_email='chris.olivier@cerebras.net',
   version='0.6.0',
   packages=find_packages(exclude=['build']),
   package_data={
-    'ptwse': [
+    'ptag': [
 #      '*.so*',
 #      'lib/*.so*',
     ],
   },
   data_files=[],
-  ext_modules=[CMakeExtension('_PTWSE')],
+  ext_modules=[CMakeExtension('_ptag')],
 #  cmdclass=dict(build_ext=CMakeBuild),
   zip_safe=False,
 )
