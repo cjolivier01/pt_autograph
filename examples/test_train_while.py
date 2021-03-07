@@ -247,8 +247,6 @@ def train_mnist(FLAGS):
             print(f"loss is on device: {loss.device}")
             return [loss]
 
-        step = 0
-        outputs = None
         # Train
         print('Starting new epoch train loop... (epoch={epoch})')
         for step, (data, target) in enumerate(loader):
