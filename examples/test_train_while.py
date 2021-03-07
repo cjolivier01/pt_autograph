@@ -50,6 +50,7 @@ import torch_xla.distributed.data_parallel as dp
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.test.test_utils as test_utils
+from torch_xla.debug.graph_saver import save_tensors_graph
 
 # ptag
 import ptag
@@ -75,6 +76,7 @@ FLAGS.with_while = False
 FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
+FLAGS.save_graph = True
 
 
 class MNIST(nn.Module):
@@ -254,6 +256,12 @@ def train_mnist(FLAGS):
 
             ctx.step += 1
             print(f"loss is on device: {loss.device}")
+
+            if FLAGS.save_graph and ctx.step == 2:
+                save_tensors_graph(
+                    os.getcwd(), 'loss', loss
+                )
+
             return [loss]
 
         #
@@ -303,6 +311,7 @@ def main(args):
     os.environ[
         'XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
     os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
+    os.environ['SAVE_GRAPH_FMT'] = 'dot'
 
     try:
         train_mnist(FLAGS)
