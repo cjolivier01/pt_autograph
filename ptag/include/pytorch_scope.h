@@ -17,8 +17,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#ifndef PYTORCH_ptag_SCOPE_H_INCLUDED
-#define PYTORCH_ptag_SCOPE_H_INCLUDED
+#ifndef PYTORCH_PTAG_SCOPE_H_INCLUDED
+#define PYTORCH_PTAG_SCOPE_H_INCLUDED
 
 #include <string>
 #include <sstream>
@@ -31,14 +31,14 @@
 #include <cassert>
 #include <stack>
 
-#ifndef PYTORCH_ptag_NO_FA_SETTER
+#ifndef PYTORCH_PTAG_NO_FA_SETTER
 #include "tensorflow/compiler/xla/client/xla_builder.h"
 #endif
 
 
-#define PYTORCH_ptag_PUBLIC __attribute__((visibility("default")))
+#define PYTORCH_PTAG_PUBLIC __attribute__((visibility("default")))
 
-#define PYTORCH_ptag_THREAD_LOCAL thread_local
+#define PYTORCH_PTAG_THREAD_LOCAL thread_local
 
 namespace pytorch_ptag {
 
@@ -369,7 +369,7 @@ class FrontendAttributePusher {
   }
 
   static void InitForceEnable() {
-    const char *s = ::getenv("PYTORCH_ptag_FORCE_ENABLE_FATTR");
+    const char *s = ::getenv("PYTORCH_PTAG_FORCE_ENABLE_FATTR");
     if (!s) {
       return;
     }
@@ -381,9 +381,9 @@ class FrontendAttributePusher {
   }
 
   std::vector<std::string> keys_;
-  static PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL FrontendAttributeContext g_frontend_attribute_context;
-  static signed int PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL enable_count_;
-  static bool PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL force_enable_;
+  static PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL FrontendAttributeContext g_frontend_attribute_context;
+  static signed int PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL enable_count_;
+  static bool PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL force_enable_;
 };
 
 /**
@@ -533,54 +533,54 @@ struct BackpropScope {
   FrontendAttributePusher::FrontendAttributeContext::BackpropFor save_;
 };
 
-#define PYTORCH_ptag_INSTANTIATE_PARTITIONS(force_enable) \
+#define PYTORCH_PTAG_INSTANTIATE_PARTITIONS(force_enable) \
     namespace pytorch_ptag { \
-        PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL FrontendAttributePusher::FrontendAttributeContext \
+        PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL FrontendAttributePusher::FrontendAttributeContext \
         FrontendAttributePusher::g_frontend_attribute_context;                                    \
-        PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL signed int FrontendAttributePusher::enable_count_{0};     \
-        PYTORCH_ptag_PUBLIC PYTORCH_ptag_THREAD_LOCAL bool FrontendAttributePusher::force_enable_{force_enable};      \
+        PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL signed int FrontendAttributePusher::enable_count_{0};     \
+        PYTORCH_PTAG_PUBLIC PYTORCH_PTAG_THREAD_LOCAL bool FrontendAttributePusher::force_enable_{force_enable};      \
   }  /* end of pytorch_ptag namespace */
 
 
-#define PYTORCH_ptag_ENABLE_PARITIONS_MACRO
+#define PYTORCH_PTAG_ENABLE_PARITIONS_MACRO
 
-#ifdef PYTORCH_ptag_ENABLE_PARITIONS_MACRO
-#define PYTORCH_ptag_DECLARE_PARTITION()                    \
+#ifdef PYTORCH_PTAG_ENABLE_PARITIONS_MACRO
+#define PYTORCH_PTAG_DECLARE_PARTITION()                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::PartitionScope::infer_direction(__FUNCTION__)), \
         pytorch_ptag::PartitionScope::MakePartitionName(__FUNCTION__) \
       )
 
-#define PYTORCH_ptag_DECLARE_PARTITION_FWD()                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_FWD()                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::FWD), \
         pytorch_ptag::PartitionScope::MakePartitionName(__FUNCTION__) \
       )
 
-#define PYTORCH_ptag_DECLARE_PARTITION_CLASS_FWD()                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_CLASS_FWD()                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::BWD), \
         pytorch_ptag::PartitionScope::MakePartitionName(pytorch_ptag::PartitionScope::method_name(__PRETTY_FUNCTION__)) \
       )
 
-#define PYTORCH_ptag_DECLARE_PARTITION_BYNAME_FWD(__name$)                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_BYNAME_FWD(__name$)                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::FWD), \
         pytorch_ptag::PartitionScope::MakePartitionName(__name$) \
       )
 
-#define PYTORCH_ptag_DECLARE_PARTITION_BWD()                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_BWD()                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::BWD), \
         pytorch_ptag::PartitionScope::MakePartitionName(__FUNCTION__) \
       )
 
-#define PYTORCH_ptag_DECLARE_PARTITION_CLASS_BWD()                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_CLASS_BWD()                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::BWD), \
@@ -588,7 +588,7 @@ struct BackpropScope {
           pytorch_ptag::PartitionScope::method_name(__PRETTY_FUNCTION__) \
       ))
 
-#define PYTORCH_ptag_DECLARE_PARTITION_BYNAME_BWD(__name$)                    \
+#define PYTORCH_PTAG_DECLARE_PARTITION_BYNAME_BWD(__name$)                    \
   pytorch_ptag::FrontendAttributePusher fattr(    \
       pytorch_ptag::PartitionScope::PartitionMatchName(\
         pytorch_ptag::Direction::BWD), \
@@ -596,11 +596,11 @@ struct BackpropScope {
       )
 
 #else
-#define PYTORCH_ptag_DECLARE_PARTITION() ((void)0)
-#define PYTORCH_ptag_DECLARE_XLA_PARTITION() ((void)0)extra_attributes)
+#define PYTORCH_PTAG_DECLARE_PARTITION() ((void)0)
+#define PYTORCH_PTAG_DECLARE_XLA_PARTITION() ((void)0)extra_attributes)
 #endif
 
-#ifndef PYTORCH_ptag_NO_FA_SETTER
+#ifndef PYTORCH_PTAG_NO_FA_SETTER
 /**
  * RAII class which sets and removes a map of frontend attributes
  * to an XlaBuilder object as this class' instantiation
@@ -656,8 +656,8 @@ private:
     pytorch_ptag::PartitionScope::MakePartitionName(__FUNCTION__)}} \
   )
 
-#endif // PYTORCH_ptag_NO_FA_SETTER
+#endif // PYTORCH_PTAG_NO_FA_SETTER
 
 }  // end of pytorch_ptag namespace
 
-#endif  // PYTORCH_ptag_SCOPE_H_INCLUDED
+#endif  // PYTORCH_PTAG_SCOPE_H_INCLUDED
