@@ -324,7 +324,7 @@ def main(args):
         msg = f"Unhandled exception: {e}"
         print(msg)
         traceback.print_exc()
-        time.sleep(1)  #
+        time.sleep(1)  # Let any async stuff chill for a bit
         logging.getLogger().error(msg)
         stats.print_stats(
             prefix_text="%ERROR_STATS_BEGIN%",
