@@ -92,7 +92,7 @@ from ptwse.scope import (
 # from ptwse.ops import tensor_array_ops
 # from ptwse.ops.ragged import ragged_tensor
 # from ptwse.util import lazy_loader
-# from ptwse.util import nest
+from ptwse.util import nest
 
 # TODO(b/145618471): Remove this dependency.
 # Lazy import to work around circular dependencies
@@ -164,6 +164,21 @@ class control_flow_ops(object):
             true_value, 
             false_value
         ), state
+
+
+# class nest(object):
+#     """
+#     TODO: implement or extract from TF
+#     """
+
+#     @staticmethod
+#     def assert_same_structure(init, entry, expand_composites):
+#         pass
+    
+#     @staticmethod
+#     def map_structure(fn, iter_entry_vars):
+#         assert False
+
 
 
 # TODO(mdan): Use the custom operator pattern instead of type dispatch.
@@ -1127,9 +1142,11 @@ def tf_if_stmt(cond, body, orelse, get_state, set_state, basic_symbol_names,
 
   def error_checking_orelse():
     result[orelse_branch] = orelse()
-    if result[body_branch] is not None:
-      _verify_tf_cond_vars(result[body_branch], result[orelse_branch],
-                           basic_symbol_names + composite_symbol_names)
+    # TODO: still should verify somehow but tries to use too much
+    #       _pywrap_util
+    # if result[body_branch] is not None:
+    #   _verify_tf_cond_vars(result[body_branch], result[orelse_branch],
+    #                        basic_symbol_names + composite_symbol_names)
     return result[orelse_branch]
 
   final_vars, final_state = control_flow_ops.cond(cond, error_checking_body,

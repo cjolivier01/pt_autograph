@@ -70,9 +70,9 @@ FLAGS = args_parse.parse_common_options(datadir='/tmp/mnist-data',
 FLAGS.steps_per_epoch = 50
 FLAGS.run_test = False
 FLAGS.step_print_interval = 10
-FLAGS.use_autograph = False
+FLAGS.use_autograph = True
 FLAGS.with_while = False
-FLAGS.with_if = False
+FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
 
@@ -99,6 +99,7 @@ class MNIST(nn.Module):
                 counter = counter + 1
             else:
                 counter = counter - 1
+            x = x + counter
         return F.log_softmax(x, dim=1)
 
 
