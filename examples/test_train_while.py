@@ -52,11 +52,11 @@ import torch_xla.core.xla_model as xm
 import torch_xla.test.test_utils as test_utils
 from torch_xla.debug.graph_saver import save_tensors_graph
 
-# ptag
-import ptag
-import ptag.scope
-import ptag.flow.runner as runner
-import ptag.stats as stats
+# PT_AUTOGRAPH
+import pt_autograph
+import pt_autograph.scope
+import pt_autograph.flow.runner as runner
+import pt_autograph.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
@@ -278,7 +278,7 @@ def train_mnist(FLAGS):
                 assert not FLAGS.use_autograph
                 assert False  # Will do this shortly
             elif FLAGS.use_autograph:
-                outputs = ptag.flow.runner.maybe_run_converted(
+                outputs = pt_autograph.flow.runner.maybe_run_converted(
                     train_inner_loop_fn, (data, target), context)
             else:
                 outputs = train_inner_loop_fn((data, target), context)

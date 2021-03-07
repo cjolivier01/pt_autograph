@@ -7,5 +7,5 @@
 *.pyc
 *.mdl
 *.dot
-/ptag.egg-info
+/pt_autograph.egg-info
 browse.vsc.db*
