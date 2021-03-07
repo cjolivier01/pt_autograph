@@ -76,7 +76,7 @@ FLAGS.with_while = False
 FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
-FLAGS.save_graph = True
+FLAGS.save_graph = False
 
 
 class MNIST(nn.Module):
@@ -258,8 +258,9 @@ def train_mnist(FLAGS):
             print(f"loss is on device: {loss.device}")
 
             if FLAGS.save_graph and ctx.step == 2:
+                tensors = [loss] + list(model.parameters())
                 save_tensors_graph(
-                    os.getcwd(), 'loss', loss
+                    os.getcwd(), 'loss', tensors
                 )
 
             return [loss]
