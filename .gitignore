@@ -6,5 +6,6 @@
 /venv
 *.pyc
 *.mdl
-/ptag.egg-info
+*.dot
+/pt_autograph.egg-info
 browse.vsc.db*

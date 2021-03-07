@@ -50,12 +50,13 @@ import torch_xla.distributed.data_parallel as dp
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.test.test_utils as test_utils
+from torch_xla.debug.graph_saver import save_tensors_graph
 
-# ptag
-import ptag
-import ptag.scope
-import ptag.flow.runner as runner
-import ptag.stats as stats
+# PT_AUTOGRAPH
+import pt_autograph
+import pt_autograph.scope
+import pt_autograph.flow.runner as runner
+import pt_autograph.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
@@ -75,6 +76,7 @@ FLAGS.with_while = False
 FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
+FLAGS.save_graph = False
 
 
 class MNIST(nn.Module):
@@ -254,6 +256,13 @@ def train_mnist(FLAGS):
 
             ctx.step += 1
             print(f"loss is on device: {loss.device}")
+
+            if FLAGS.save_graph and ctx.step == 2:
+                tensors = [loss] + list(model.parameters())
+                save_tensors_graph(
+                    os.getcwd(), 'loss', tensors
+                )
+
             return [loss]
 
         #
@@ -269,7 +278,7 @@ def train_mnist(FLAGS):
                 assert not FLAGS.use_autograph
                 assert False  # Will do this shortly
             elif FLAGS.use_autograph:
-                outputs = ptag.flow.runner.maybe_run_converted(
+                outputs = pt_autograph.flow.runner.maybe_run_converted(
                     train_inner_loop_fn, (data, target), context)
             else:
                 outputs = train_inner_loop_fn((data, target), context)
@@ -303,6 +312,7 @@ def main(args):
     os.environ[
         'XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
     os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
+    os.environ['SAVE_GRAPH_FMT'] = 'dot'
 
     try:
         train_mnist(FLAGS)

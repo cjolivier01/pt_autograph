@@ -92,21 +92,21 @@ class CMakeBuild(build_ext):
                           cwd=self.build_temp)
     print()  # Add an empty line for cleaner output
 
-#shlibs = glob.glob(os.path.join('ptag', '*.so'))
+#shlibs = glob.glob(os.path.join('pt_autograph', '*.so'))
 
 #
 # CMake build files not yet included
 #
 
 setup(
-  name = 'ptag',
+  name = 'pt_autograph',
   description='Cerebras Pytorch Integration',
   author='Cerebras Systems',
   author_email='chris.olivier@cerebras.net',
   version='0.6.0',
   packages=find_packages(exclude=['build']),
   package_data={
-    'ptag': [
+    'pt_autograph': [
 #      '*.so*',
 #      'lib/*.so*',
     ],
