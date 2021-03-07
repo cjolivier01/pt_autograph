@@ -1,5 +1,5 @@
 """
-Configurable simple model runner for PyTorch
+Simple model runner for PyTorch
 Based upon the train_test_mnist.py script from the pytorch/xla package
 """
 
@@ -12,7 +12,7 @@ def _preempt_uname():
     for multi-processing workflows since a trap has to occur in order to manually
     set follow-fork-mode to child *after* uname is called, or else gdb can't
     debug the forked ptxla processes (following child follows the uname() fork)
-    
+
     ...at least how I have mine configured :)
 
     """
