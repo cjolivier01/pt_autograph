@@ -54,9 +54,11 @@ from torch_xla.debug.graph_saver import save_tensors_graph
 
 # PT_AUTOGRAPH
 import pt_autograph
-import pt_autograph.scope
 import pt_autograph.flow.runner as runner
-import pt_autograph.stats as stats
+
+# PT_AUTOGRAPH.PTXLA
+import pt_autograph.ptxla.scope
+import pt_autograph.ptxla.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
