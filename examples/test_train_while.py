@@ -30,34 +30,34 @@ def _preempt_uname():
 
 _preempt_uname()
 
+# BOILERPLATE
 import os
-from statistics import mean
 import time
 import sys
-import torch
+import logging
 import numpy as np
+
+# TORCH
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.fx as fx
-from torchvision import datasets, transforms
+
+# PTXLA
 import torch_xla
 import torch_xla.distributed.data_parallel as dp
-import torch_xla.distributed.parallel_loader as pl
-import torch_xla.debug.metrics as met
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
-import torch_xla.distributed.xla_multiprocessing as xmp
 import torch_xla.test.test_utils as test_utils
-import unittest
-import shutil
-import logging
 
+# PTWSE
 import ptwse
 import ptwse.scope
 import ptwse.flow.runner as runner
 import ptwse.stats as stats
 
+# TEST UTILS (from ptxla)
 import args_parse
 
 FLAGS = args_parse.parse_common_options(datadir='/tmp/mnist-data',
