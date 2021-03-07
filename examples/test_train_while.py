@@ -54,9 +54,11 @@ from torch_xla.debug.graph_saver import save_tensors_graph
 
 # PT_AUTOGRAPH
 import pt_autograph
-import pt_autograph.scope
 import pt_autograph.flow.runner as runner
-import pt_autograph.stats as stats
+
+# PT_AUTOGRAPH.PTXLA
+import pt_autograph.ptxla.scope
+import pt_autograph.ptxla.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
@@ -322,7 +324,7 @@ def main(args):
         msg = f"Unhandled exception: {e}"
         print(msg)
         traceback.print_exc()
-        time.sleep(1)  #
+        time.sleep(1)  # Let any async stuff chill for a bit
         logging.getLogger().error(msg)
         stats.print_stats(
             prefix_text="%ERROR_STATS_BEGIN%",

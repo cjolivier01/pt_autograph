@@ -73,7 +73,7 @@ from pt_autograph.autograph.utils import tensors
 
 import torch
 
-from pt_autograph.scope import (
+from pt_autograph.ptxla.scope import (
     get_matched_op_tag,
     frontend_attribute_scope
 )
