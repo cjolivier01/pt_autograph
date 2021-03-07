@@ -57,7 +57,6 @@ import ptwse.scope
 import ptwse.flow.runner as runner
 import ptwse.stats as stats
 
-
 import args_parse
 
 FLAGS = args_parse.parse_common_options(
@@ -277,11 +276,7 @@ def train_mnist(FLAGS):
 
             if FLAGS.use_fx:
                 assert not FLAGS.use_autograph
-                outputs = ptwse.flow.runner.maybe_run_converted(
-                    train_inner_loop_fn,
-                    (data, target),
-                    context
-                )
+                assert False  # Will do this shortly
             elif FLAGS.use_autograph:
                 outputs = ptwse.flow.runner.maybe_run_converted(
                     train_inner_loop_fn,
