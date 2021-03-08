@@ -999,14 +999,29 @@ def _pt_while_stmt(test, body, get_state, set_state, symbol_names, opts):
 
     def aug_test(*loop_vars):
         set_state(loop_vars)
-        return test()
+        with frontend_attribute_scope(
+            get_matched_op_tag(),
+            'p_aug_test'
+        ):
+            return test()
 
     def aug_body(*loop_vars):
         set_state(loop_vars)
-        body()
+        with frontend_attribute_scope(
+            get_matched_op_tag(),
+            'p_aug_body'
+        ):
+            # nlv = []
+            for i in loop_vars:
+                j = i + i
+                k = j - i
+                nlv.append(k)
+            #body()
+
+        #new_loop_vars = nlv
         new_loop_vars = get_state()
         #_verify_tf_loop_vars(
-            #init_vars, loop_vars, new_loop_vars, symbol_names, opts)
+        #init_vars, loop_vars, new_loop_vars, symbol_names, opts)
         return new_loop_vars
 
     # Non-v2 while_loop unpacks the results when there is only one return value.
@@ -1019,25 +1034,117 @@ def _pt_while_stmt(test, body, get_state, set_state, symbol_names, opts):
 
     # TODO: make a tuple of all inputs and outputs?
 
-    print('Here we are in the _pt_while_stmt function')
-
     if True:
-        # This isn't going to work at all,
-        # but let's recors it via the frontend
-        # attributes.
-        # Note that test isn't accessed, so won't
-        # be part of it.
+        name_counter = 0
+        #xla_init_vars = xu.as_list(op(*init_vars))
+
+        #xla_init_vars = xu.as_list(init_vars)
+        # registered_vars = []
+        # for t in xla_init_vars:
+        #     name = f'while_reg_{name_counter}'
+        #     counter += 1
+        #     op = xor.register(name, t)
+        #     registered_vars.append(op)
+        #
+        # xla_init_vars = [Op(t) for t in registered_vars]
+
+        # def op_fn(a, b, limit=None):
+        #
+        #     def cond(counter, a, b):
+        #         #assert False
+        #         return counter < xb.Op.scalar(
+        #             counter.builder(), limit, dtype=xb.Type.S32)
+        #
+        #     def body(counter, a, b):
+        #         #assert False
+        #         next_counter = counter + xb.Op.scalar(
+        #             counter.builder(), 1, dtype=xb.Type.S32
+        #         )
+        #         return xb.Op.tuple((next_counter, a + b, b))
+        #
+        #     #assert False
+        #     zero = xb.Op.scalar(
+        #         a.builder(), 0, dtype=xb.Type.S32
+        #     )
+        #     w = xb.Op.mkwhile((zero, a, b), cond, body)
+        #     return w.get_tuple_element(1)
+        #
+        # op = xor.register(f"while_fn_{name_counter}", op_fn)
+        # name_counter += 1
+        #
+        # xla_tensors = xu.as_list([torch.randn(2, 2), torch.randn(2, 2)])
+        # kwargs = {
+        #     "limit": 10,
+        # }
+        # xla_results = xu.as_list(op(*xla_tensors, **kwargs))
+
         with frontend_attribute_scope(
-            get_matched_op_tag(), 'while_test'
+            get_matched_op_tag(),
+            'my_test'
         ):
-            # Should still be attached to the graph, but we'll have to find
-            # by a scan rather than postorder when we find a while body
-            test_results = aug_test(*init_vars)
+            test_results = test()
+
+        test_computation = torch_xla._XLAC._get_xla_bounded_computation(
+            "bounded_test",
+            [test_results],
+            init_vars
+        )
+
         with frontend_attribute_scope(
-            get_matched_op_tag(), 'while_body'
+            get_matched_op_tag(),
+            'my_body'
         ):
-            results = aug_body(*init_vars)
-        final_loop_vars = results
+            body()
+            body_results = get_state()
+
+        body_computation = torch_xla._XLAC._get_xla_bounded_computation(
+            "bounded_body",
+            body_results,
+            init_vars
+        )
+
+        print('foo')
+
+        def op_fn(*loop_vars):
+            # def _cond(*loop_vars):
+            #     return aug_test(*loop_vars)
+            # def _body(*loop_vars):
+            #     return aug_body(*loop_vars)
+            # Make the while loop
+            #w = xb.Op.mkwhile_x(loop_vars, _cond, _body)
+            w = xb.Op.mkwhile_x(loop_vars, test_computation, body_computation)
+            return w
+            #return w.get_tuple_element(1)
+            #return w.get_tuple_elements(len(loop_vars))
+
+        op = xor.register(f"while_fn_{name_counter}", op_fn)
+        final_loop_vars = xu.as_list(op(*init_vars))
+        # final_loop_vars = op(*init_vars)
+        # #final_loop_vars = tuple(final_loop_vars)
+        # print(len(final_loop_vars))
+        # if not isinstance(final_loop_vars, list):
+        #     final_loop_vars = [final_loop_vars]
+        # final_loop_vars.append(init_vars[-1])
+        #final_loop_vars = init_vars
+
+        print('foo2')
+
+        # final_loop_vars = Op.mkwhile(
+        #     xla_init_vars,
+        #     aug_test,
+        #     aug_body
+        # )
+        # with frontend_attribute_scope(
+        #     get_matched_op_tag(), 'p_while_test'
+        # ):
+        #     # Should still be attached to the graph, but we'll have to find
+        #     # by a scan rather than postorder when we find a while body
+        #     test_results = aug_test(*init_vars)
+        # with frontend_attribute_scope(
+        #     get_matched_op_tag(), 'p_while_body'
+        # ):
+        #     results = aug_body(*init_vars)
+        # final_loop_vars = torch.tensor([results, test_results])
     else:
         final_loop_vars = control_flow_ops.while_loop(
             aug_test, aug_body, init_vars, **opts)
