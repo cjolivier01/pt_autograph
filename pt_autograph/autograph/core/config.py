@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.core import config_lib
+from tensorflow.python.autograph.core import config_lib
 
 Action = config_lib.Action
 Convert = config_lib.Convert
@@ -29,7 +29,7 @@ DoNotConvert = config_lib.DoNotConvert
 # for a definitely_convert of definitely_bypass call.
 CONVERSION_RULES = (
     # Known packages
-    Convert('pt_autograph.training.experimental'),
+    Convert('tensorflow.python.training.experimental'),
 
     # Builtin modules
     DoNotConvert('collections'),

@@ -26,10 +26,10 @@ import textwrap
 
 import gast
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import ast_util
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import qual_names
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import ast_util
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import qual_names
 
 
 class ContextAdjuster(gast.NodeTransformer):

@@ -18,9 +18,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.utils.context_managers import control_dependency_on_returns
-from pt_autograph.autograph.utils.misc import alias_tensors
-from pt_autograph.autograph.utils.py_func import wrap_py_func
-from pt_autograph.autograph.utils.tensor_list import dynamic_list_append
-from pt_autograph.autograph.utils.testing import fake_tf
-from pt_autograph.autograph.utils.type_check import is_tensor
+from tensorflow.python.autograph.utils.context_managers import control_dependency_on_returns
+from tensorflow.python.autograph.utils.misc import alias_tensors
+from tensorflow.python.autograph.utils.py_func import wrap_py_func
+from tensorflow.python.autograph.utils.tensor_list import dynamic_list_append
+from tensorflow.python.autograph.utils.testing import fake_tf
+from tensorflow.python.autograph.utils.type_check import is_tensor

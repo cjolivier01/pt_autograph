@@ -18,12 +18,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.core import ag_ctx
-from pt_autograph.autograph.core import converter
-# from pt_autograph.framework import auto_control_deps
-# from pt_autograph.framework import ops
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.util import nest
+from tensorflow.python.autograph.core import ag_ctx
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.framework import auto_control_deps
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.util import nest
 
 
 class FunctionScope(object):

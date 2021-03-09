@@ -29,8 +29,8 @@ import astunparse
 import gast
 import six
 
-from pt_autograph.autograph.pyct import errors
-from pt_autograph.autograph.pyct import inspect_utils
+from tensorflow.python.autograph.pyct import errors
+from tensorflow.python.autograph.pyct import inspect_utils
 
 
 STANDARD_PREAMBLE = textwrap.dedent("""

@@ -20,7 +20,7 @@ from __future__ import print_function
 
 import gast
 
-from pt_autograph.autograph.pyct import errors
+from tensorflow.python.autograph.pyct import errors
 
 
 class UnsupportedFeaturesChecker(gast.NodeVisitor):

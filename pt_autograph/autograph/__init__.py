@@ -32,22 +32,22 @@ from __future__ import division
 from __future__ import print_function
 
 # TODO(mdan): Bring only the relevant symbols to the top level.
-from pt_autograph.autograph import operators
-from pt_autograph.autograph import utils
-from pt_autograph.autograph.core.converter import ConversionOptions
-from pt_autograph.autograph.core.converter import Feature
-from pt_autograph.autograph.impl.api import AutoGraphError
-from pt_autograph.autograph.impl.api import convert
-from pt_autograph.autograph.impl.api import converted_call
-from pt_autograph.autograph.impl.api import do_not_convert
-#from pt_autograph.autograph.impl.api import StackTraceMapper
-from pt_autograph.autograph.impl.api import to_code
-from pt_autograph.autograph.impl.api import to_graph
-from pt_autograph.autograph.lang.directives import set_element_type
-from pt_autograph.autograph.lang.directives import set_loop_options
-from pt_autograph.autograph.lang.special_functions import stack
-from pt_autograph.autograph.utils import ag_logging
-#from pt_autograph.util.all_util import remove_undocumented
+from tensorflow.python.autograph import operators
+from tensorflow.python.autograph import utils
+from tensorflow.python.autograph.core.converter import ConversionOptions
+from tensorflow.python.autograph.core.converter import Feature
+from tensorflow.python.autograph.impl.api import AutoGraphError
+from tensorflow.python.autograph.impl.api import convert
+from tensorflow.python.autograph.impl.api import converted_call
+from tensorflow.python.autograph.impl.api import do_not_convert
+from tensorflow.python.autograph.impl.api import StackTraceMapper
+from tensorflow.python.autograph.impl.api import to_code
+from tensorflow.python.autograph.impl.api import to_graph
+from tensorflow.python.autograph.lang.directives import set_element_type
+from tensorflow.python.autograph.lang.directives import set_loop_options
+from tensorflow.python.autograph.lang.special_functions import stack
+from tensorflow.python.autograph.utils import ag_logging
+from tensorflow.python.util.all_util import remove_undocumented
 
 # TODO(mdan): Revisit this list once we finalize the generated code mechanism.
 _allowed_symbols = [
@@ -55,7 +55,7 @@ _allowed_symbols = [
     'AutoGraphError',
     'ConversionOptions',
     'Feature',
-    #'StackTraceMapper',
+    'StackTraceMapper',
     'convert',
     'converted_call',
     'do_not_convert',
@@ -72,4 +72,4 @@ _allowed_symbols = [
     'utils',
 ]
 
-#remove_undocumented(__name__, _allowed_symbols)
+remove_undocumented(__name__, _allowed_symbols)

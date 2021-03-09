@@ -30,7 +30,7 @@ import types
 
 import six
 
-from pt_autograph.util import tf_inspect
+from tensorflow.python.util import tf_inspect
 
 # This lock seems to help avoid linecache concurrency errors.
 _linecache_lock = threading.Lock()

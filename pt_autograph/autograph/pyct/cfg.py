@@ -48,8 +48,8 @@ from enum import Enum
 import gast
 # pylint:enable=g-bad-import-order
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import parser
 
 
 class Node(object):

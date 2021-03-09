@@ -20,7 +20,7 @@ from __future__ import print_function
 
 import collections
 
-from pt_autograph.autograph.pyct import origin_info
+from tensorflow.python.autograph.pyct import origin_info
 
 
 class FrameInfo(

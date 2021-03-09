@@ -66,17 +66,17 @@ from __future__ import print_function
 import collections
 import enum
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import ast_util
-from pt_autograph.autograph.pyct import cfg
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import qual_names
-from pt_autograph.autograph.pyct import templates
-from pt_autograph.autograph.pyct import transformer
-from pt_autograph.autograph.pyct.static_analysis import activity
-from pt_autograph.autograph.pyct.static_analysis import liveness
-from pt_autograph.autograph.pyct.static_analysis import reaching_definitions
-#from pt_autograph.util.tf_export import tf_export
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import ast_util
+from tensorflow.python.autograph.pyct import cfg
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import qual_names
+from tensorflow.python.autograph.pyct import templates
+from tensorflow.python.autograph.pyct import transformer
+from tensorflow.python.autograph.pyct.static_analysis import activity
+from tensorflow.python.autograph.pyct.static_analysis import liveness
+from tensorflow.python.autograph.pyct.static_analysis import reaching_definitions
+from tensorflow.python.util.tf_export import tf_export
 
 # TODO(mdan): These contexts can be refactored into first class objects.
 # For example, we could define Program and Entity abstractions that hold on
@@ -85,7 +85,7 @@ from pt_autograph.autograph.pyct.static_analysis import reaching_definitions
 # TODO(mdan): Add a test specific to this converter.
 
 
-#@tf_export('autograph.experimental.Feature')
+@tf_export('autograph.experimental.Feature')
 class Feature(enum.Enum):
   """This enumeration represents optional conversion options.
 

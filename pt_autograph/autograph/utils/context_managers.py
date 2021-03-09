@@ -20,8 +20,8 @@ from __future__ import print_function
 
 import contextlib
 
-#from pt_autograph.framework import ops
-#from pt_autograph.ops import tensor_array_ops
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import tensor_array_ops
 
 
 def control_dependency_on_returns(return_value):

@@ -20,14 +20,14 @@ from __future__ import print_function
 
 import gast
 
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.lang import directives
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import ast_util
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import templates
-from pt_autograph.autograph.pyct.static_analysis import annos
-from pt_autograph.autograph.utils import compat_util
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.lang import directives
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import ast_util
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import templates
+from tensorflow.python.autograph.pyct.static_analysis import annos
+from tensorflow.python.autograph.utils import compat_util
 
 
 # TODO(mdan): Refactor functions to make them smaller.
@@ -421,7 +421,7 @@ class ControlFlowTransformer(converter.Base):
       def test_name():
         return test
       undefined_assigns
-      ag__.pt_while_stmt(
+      ag__.while_stmt(
           test_name,
           body_name,
           state_getter_name,

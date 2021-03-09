@@ -18,10 +18,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# from pt_autograph.framework import ops
-# from pt_autograph.ops import array_ops
-# from pt_autograph.ops import gen_math_ops
-# from pt_autograph.ops import math_ops
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import gen_math_ops
+from tensorflow.python.ops import math_ops
 
 
 def alias_tensors(*args):

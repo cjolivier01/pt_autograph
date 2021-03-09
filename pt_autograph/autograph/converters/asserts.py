@@ -20,8 +20,8 @@ from __future__ import print_function
 
 import gast
 
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.pyct import templates
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.pyct import templates
 
 
 class AssertTransformer(converter.Base):

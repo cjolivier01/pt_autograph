@@ -20,9 +20,9 @@ from __future__ import print_function
 
 import imp
 
-# from pt_autograph.framework import ops
-# from pt_autograph.ops import gen_math_ops
-# from pt_autograph.ops import math_ops
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import gen_math_ops
+from tensorflow.python.ops import math_ops
 
 
 def fake_tf():

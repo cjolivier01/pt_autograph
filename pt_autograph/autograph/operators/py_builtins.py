@@ -25,34 +25,33 @@ import inspect
 
 import six
 
-from pt_autograph.autograph.utils import py_func
-from pt_autograph.autograph.utils import tensors
-# from pt_autograph.data.ops import dataset_ops
-# from pt_autograph.framework import constant_op
-# from pt_autograph.framework import dtypes
-# from pt_autograph.framework import ops
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.ops import array_ops
-# from pt_autograph.ops import control_flow_ops
-# from pt_autograph.ops import gen_parsing_ops
-# from pt_autograph.ops import gen_string_ops
-# from pt_autograph.ops import list_ops
-# from pt_autograph.ops import math_ops
-# from pt_autograph.ops import sort_ops
-# from pt_autograph.ops import check_ops
-# from pt_autograph.util import lazy_loader
-# from pt_autograph.util import nest
+from tensorflow.python.autograph.utils import py_func
+from tensorflow.python.autograph.utils import tensors
+from tensorflow.python.data.ops import dataset_ops
+from tensorflow.python.framework import constant_op
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import control_flow_ops
+from tensorflow.python.ops import gen_parsing_ops
+from tensorflow.python.ops import gen_string_ops
+from tensorflow.python.ops import list_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import sort_ops
+from tensorflow.python.ops import check_ops
+from tensorflow.python.util import lazy_loader
+from tensorflow.python.util import nest
 
-import torch
 
 # TODO(b/145618471): Remove this dependency.
 # Lazy import to work around circular dependencies
-# input_lib = lazy_loader.LazyLoader(
-#     'input_lib', globals(),
-#     'pt_autograph.distribute.input_lib')
-# parallel_ops = lazy_loader.LazyLoader(
-#     'parallel_ops', globals(),
-#     'pt_autograph.ops.parallel_for.control_flow_ops')
+input_lib = lazy_loader.LazyLoader(
+    'input_lib', globals(),
+    'tensorflow.python.distribute.input_lib')
+parallel_ops = lazy_loader.LazyLoader(
+    'parallel_ops', globals(),
+    'tensorflow.python.ops.parallel_for.control_flow_ops')
 
 
 UNSPECIFIED = object()
@@ -163,10 +162,10 @@ def super_in_original_context(f, args, caller_fn_scope):
 
 
 def abs_(x):
-  if torch.is_tensor(x):
+  if tensor_util.is_tensor(x):
     return _tf_abs(x)
-  # if isinstance(x, dataset_ops.DatasetV2):
-  #   return _tf_dataset_abs(x)
+  if isinstance(x, dataset_ops.DatasetV2):
+    return _tf_dataset_abs(x)
   return _py_abs(x)
 
 
@@ -186,7 +185,7 @@ def _py_abs(x):
 
 
 def float_(x=0):
-  if torch.is_tensor(x):
+  if tensor_util.is_tensor(x):
     return _tf_float(x)
   return _py_float(x)
 
@@ -203,7 +202,7 @@ def _py_float(x):
 
 
 def int_(x=0, base=UNSPECIFIED):
-  if torch.is_tensor(x):
+  if tensor_util.is_tensor(x):
     return _tf_int(x, base)
   return _py_int(x, base)
 
@@ -229,7 +228,7 @@ def len_(s):
     return _tf_tensor_array_len(s)
   elif tensors.is_tensor_list(s):
     return _tf_tensor_list_len(s)
-  elif torch.is_tensor(s):
+  elif tensor_util.is_tensor(s):
     return _tf_tensor_len(s)
   return _py_len(s)
 
@@ -288,7 +287,7 @@ def print_(*objects, **kwargs):
     raise ValueError('invalid keyword arguments: {}'.format(unknown_kwargs))
 
   # TODO(mdan): Use next.flatten(objects) instead?
-  if any(torch.is_tensor(o) for o in objects):
+  if any(tensor_util.is_tensor(o) for o in objects):
     # TODO(mdan): use tf.print instead.
     return _tf_py_func_print(objects, kwargs)
   else:
@@ -308,7 +307,7 @@ def _tf_py_func_print(objects, kwargs):
     override_kwargs['flush'] = True
 
   def print_wrapper(*vals):
-    vals = tuple(v.numpy() if torch.is_tensor(v) else v for v in vals)
+    vals = tuple(v.numpy() if tensor_util.is_tensor(v) else v for v in vals)
     if not six.PY2:
       # TensorFlow doesn't seem to generate Unicode when passing strings to
       # py_func. This causes the print to add a "b'" wrapper to the output,
@@ -322,7 +321,7 @@ def _tf_py_func_print(objects, kwargs):
 
 
 def range_(start_or_stop, stop=UNSPECIFIED, step=UNSPECIFIED):
-  if any(torch.is_tensor(s) for s in (start_or_stop, stop, step)):
+  if any(tensor_util.is_tensor(s) for s in (start_or_stop, stop, step)):
     return _tf_range(start_or_stop, stop, step)
   return _py_range(start_or_stop, stop, step)
 
@@ -353,12 +352,12 @@ def _py_range(start_or_stop, stop, step):
 
 
 def enumerate_(s, start=0):
-  # if isinstance(s, dataset_ops.DatasetV2):
-  #   return _tf_dataset_enumerate(s, start)
-  # if isinstance(
-  #     s, (input_lib.DistributedIterator, input_lib.DistributedDataset)):
-  #   raise NotImplementedError(
-  #       'use a for loop over the dataset and keep a separate counter')
+  if isinstance(s, dataset_ops.DatasetV2):
+    return _tf_dataset_enumerate(s, start)
+  if isinstance(
+      s, (input_lib.DistributedIterator, input_lib.DistributedDataset)):
+    raise NotImplementedError(
+        'use a for loop over the dataset and keep a separate counter')
   return _py_enumerate(s, start)
 
 
@@ -371,13 +370,12 @@ def _py_enumerate(s, start=0):
 
 
 def zip_(*iterables):
-  # if all(isinstance(x, dataset_ops.DatasetV2) for x in iterables):
-  #   return _tf_dataset_zip(*iterables)
+  if all(isinstance(x, dataset_ops.DatasetV2) for x in iterables):
+    return _tf_dataset_zip(*iterables)
   return _py_zip(*iterables)
 
 
 def _tf_dataset_zip(*iterables):
-  assert False
   return dataset_ops.DatasetV2.zip(iterables)
 
 
@@ -386,13 +384,12 @@ def _py_zip(*iterables):
 
 
 def map_(fn, *iterables):
-  # if all(isinstance(x, dataset_ops.DatasetV2) for x in iterables):
-  #   return _tf_dataset_map(fn, *iterables)
+  if all(isinstance(x, dataset_ops.DatasetV2) for x in iterables):
+    return _tf_dataset_map(fn, *iterables)
   return _py_map(fn, *iterables)
 
 
 def _tf_dataset_map(fn, *iterables):
-  assert False
   return dataset_ops.DatasetV2.zip(iterables).map(fn)
 
 
@@ -401,8 +398,8 @@ def _py_map(fn, *iterables):
 
 
 def filter_(function, iterable):
-  # if isinstance(iterable, dataset_ops.DatasetV2):
-  #   return _tf_dataset_filter(function, iterable)
+  if isinstance(iterable, dataset_ops.DatasetV2):
+    return _tf_dataset_filter(function, iterable)
   return _py_filter(function, iterable)
 
 
@@ -415,8 +412,8 @@ def _py_filter(function, iterable):
 
 
 def any_(iterable):
-  # if isinstance(iterable, dataset_ops.DatasetV2):
-  #   return _tf_dataset_any(iterable)
+  if isinstance(iterable, dataset_ops.DatasetV2):
+    return _tf_dataset_any(iterable)
   return _py_any(iterable)
 
 
@@ -444,8 +441,8 @@ def _py_any(iterable):
 
 
 def all_(iterable):
-  # if isinstance(iterable, dataset_ops.DatasetV2):
-  #   return _tf_dataset_all(iterable)
+  if isinstance(iterable, dataset_ops.DatasetV2):
+    return _tf_dataset_all(iterable)
   return _py_all(iterable)
 
 
@@ -470,7 +467,7 @@ def _py_all(iterable):
 
 
 def sorted_(iterable, key=UNSPECIFIED, reverse=UNSPECIFIED):
-  if torch.is_tensor(iterable):
+  if tensor_util.is_tensor(iterable):
     return _tf_sorted(iterable, key, reverse)
   return _py_sorted(iterable, key, reverse)
 

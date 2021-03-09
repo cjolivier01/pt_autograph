@@ -31,10 +31,10 @@ from __future__ import print_function
 
 import gast
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import cfg
-from pt_autograph.autograph.pyct import transformer
-from pt_autograph.autograph.pyct.static_analysis import annos
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import cfg
+from tensorflow.python.autograph.pyct import transformer
+from tensorflow.python.autograph.pyct.static_analysis import annos
 
 
 class Analyzer(cfg.GraphVisitor):

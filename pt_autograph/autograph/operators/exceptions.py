@@ -18,9 +18,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.ops import control_flow_ops
-from pt_autograph.util import tf_inspect
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import control_flow_ops
+from tensorflow.python.util import tf_inspect
 
 
 def assert_stmt(expression1, expression2):

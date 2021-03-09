@@ -29,27 +29,26 @@ import sys
 import textwrap
 import traceback
 
-
 # pylint:disable=g-bad-import-order
 
 import six
 # pylint:enable=g-bad-import-order
 
-from pt_autograph.autograph.core import ag_ctx
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.impl import conversion
-from pt_autograph.autograph.operators import py_builtins
-from pt_autograph.autograph.pyct import error_utils
-from pt_autograph.autograph.pyct import errors
-from pt_autograph.autograph.pyct import inspect_utils
-from pt_autograph.autograph.pyct import origin_info
-from pt_autograph.autograph.utils import ag_logging as logging
-#from pt_autograph.eager import function
-# from pt_autograph.framework import errors_impl
-# from pt_autograph.util import tf_decorator
-from pt_autograph.util import tf_inspect
-from pt_autograph.util import tf_stack
-#from pt_autograph.util.tf_export import tf_export
+from tensorflow.python.autograph.core import ag_ctx
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.impl import conversion
+from tensorflow.python.autograph.operators import py_builtins
+from tensorflow.python.autograph.pyct import error_utils
+from tensorflow.python.autograph.pyct import errors
+from tensorflow.python.autograph.pyct import inspect_utils
+from tensorflow.python.autograph.pyct import origin_info
+from tensorflow.python.autograph.utils import ag_logging as logging
+from tensorflow.python.eager import function
+from tensorflow.python.framework import errors_impl
+from tensorflow.python.util import tf_decorator
+from tensorflow.python.util import tf_inspect
+from tensorflow.python.util import tf_stack
+from tensorflow.python.util.tf_export import tf_export
 
 
 def is_autograph_strict_conversion_mode():
@@ -288,7 +287,7 @@ def call_with_unspecified_conversion_status(func):
   return autograph_artifact(wrapper)
 
 
-#@tf_export('autograph.experimental.do_not_convert')
+@tf_export('autograph.experimental.do_not_convert')
 def do_not_convert(func=None):
   """Decorator that suppresses the conversion of a function.
 
@@ -340,8 +339,8 @@ def _call_unconverted(f, args, kwargs, options, update_cache=True):
   if update_cache:
     conversion.cache_whitelisted(f, options)
 
-  # if inspect.ismethod(f) and isinstance(f.__self__, function.TfMethodTarget):
-  #   return f.__self__.call(args, kwargs)
+  if inspect.ismethod(f) and isinstance(f.__self__, function.TfMethodTarget):
+    return f.__self__.call(args, kwargs)
 
   if kwargs is not None:
     return f(*args, **kwargs)
@@ -508,8 +507,8 @@ def converted_call(f,
 
       f_self = getattr(f, '__self__', None)
       if f_self is not None:
-        # if isinstance(f_self, function.TfMethodTarget):
-        #   f_self = f_self.target
+        if isinstance(f_self, function.TfMethodTarget):
+          f_self = f_self.target
         effective_args = (f_self,) + effective_args
 
     elif hasattr(f, '__class__') and hasattr(f.__class__, '__call__'):
@@ -577,25 +576,24 @@ def converted_call(f,
           ' the verbosity to 10 (on Linux, `export AUTOGRAPH_VERBOSITY=10`) and'
           ' attach the full output.\n')
       logging.warn(warning_template, target_entity, file_bug_message, e)
-    raise
 
     return _call_unconverted(f, args, kwargs, options)
 
-  #with StackTraceMapper(converted_f), tf_stack.CurrentModuleFilter():
-  try:
-    if kwargs is not None:
-      result = converted_f(*effective_args, **kwargs)
-    else:
-      result = converted_f(*effective_args)
-  except Exception as e:
-    _attach_metadata(e, converted_f)
-    raise
+  with StackTraceMapper(converted_f), tf_stack.CurrentModuleFilter():
+    try:
+      if kwargs is not None:
+        result = converted_f(*effective_args, **kwargs)
+      else:
+        result = converted_f(*effective_args)
+    except Exception as e:
+      _attach_metadata(e, converted_f)
+      raise
 
   return result
 
 
 # pylint:disable=line-too-long
-#@tf_export('autograph.to_graph', v1=[])
+@tf_export('autograph.to_graph', v1=[])
 def to_graph(entity, recursive=True, experimental_optional_features=None):
   """Converts a Python entity into a TensorFlow graph.
 
@@ -668,7 +666,7 @@ def to_graph(entity, recursive=True, experimental_optional_features=None):
         entity, e.__class__.__name__, str(e)))
 
 
-#@tf_export(v1=['autograph.to_graph'])
+@tf_export(v1=['autograph.to_graph'])
 def to_graph_v1(entity,
                 recursive=True,
                 arg_values=None,
@@ -739,7 +737,7 @@ def to_graph_v1(entity,
       experimental_optional_features=experimental_optional_features)
 
 
-#@tf_export(v1=['autograph.to_code'])
+@tf_export(v1=['autograph.to_code'])
 def to_code_v1(entity,
                recursive=True,
                arg_values=None,
@@ -793,7 +791,7 @@ def to_code_v1(entity,
       experimental_optional_features=experimental_optional_features)
 
 
-#@tf_export('autograph.to_code', v1=[])
+@tf_export('autograph.to_code', v1=[])
 def to_code(entity, recursive=True, experimental_optional_features=None):
   """Returns the source code generated by AutoGraph, as a string.
 

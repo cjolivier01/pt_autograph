@@ -24,7 +24,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.operators import special_values
+from tensorflow.python.autograph.operators import special_values
 
 
 is_undefined = special_values.is_undefined

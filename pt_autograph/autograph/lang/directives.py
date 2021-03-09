@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-#from pt_autograph.util.tf_export import tf_export
+from tensorflow.python.util.tf_export import tf_export
 
 UNSPECIFIED = object()
 
@@ -46,7 +46,7 @@ def set_element_type(entity, dtype, shape=UNSPECIFIED):
   del shape
 
 
-#@tf_export('autograph.experimental.set_loop_options')
+@tf_export('autograph.experimental.set_loop_options')
 def set_loop_options(
     parallel_iterations=UNSPECIFIED,
     swap_memory=UNSPECIFIED,

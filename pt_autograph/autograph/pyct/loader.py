@@ -28,9 +28,9 @@ import os
 import sys
 import tempfile
 
-from pt_autograph.autograph.pyct import origin_info
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.utils import compat_util
+from tensorflow.python.autograph.pyct import origin_info
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.utils import compat_util
 
 
 def load_source(source, delete_on_exit):

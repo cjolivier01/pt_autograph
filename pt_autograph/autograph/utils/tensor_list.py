@@ -18,9 +18,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# from pt_autograph.framework import ops
-# from pt_autograph.ops import list_ops
-# from pt_autograph.ops import tensor_array_ops
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import list_ops
+from tensorflow.python.ops import tensor_array_ops
 
 
 def dynamic_list_append(target, element):

@@ -30,39 +30,39 @@ import weakref
 
 import gast
 
-from pt_autograph.autograph import operators
-from pt_autograph.autograph import utils
-from pt_autograph.autograph.converters import arg_defaults
-from pt_autograph.autograph.converters import asserts
-from pt_autograph.autograph.converters import break_statements
-from pt_autograph.autograph.converters import call_trees
-from pt_autograph.autograph.converters import conditional_expressions
-from pt_autograph.autograph.converters import continue_statements
-from pt_autograph.autograph.converters import control_flow
-from pt_autograph.autograph.converters import directives
-from pt_autograph.autograph.converters import function_scopes
-from pt_autograph.autograph.converters import lists
-from pt_autograph.autograph.converters import logical_expressions
-from pt_autograph.autograph.converters import return_statements
-from pt_autograph.autograph.converters import slices
-from pt_autograph.autograph.core import config
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.core import function_wrappers
-from pt_autograph.autograph.core import naming
-from pt_autograph.autograph.core import unsupported_features_checker
-from pt_autograph.autograph.lang import special_functions
-from pt_autograph.autograph.pyct import ast_util
-from pt_autograph.autograph.pyct import loader
-from pt_autograph.autograph.pyct import inspect_utils
-from pt_autograph.autograph.pyct import origin_info
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import pretty_printer
-from pt_autograph.autograph.pyct import qual_names
-from pt_autograph.autograph.pyct import templates
-from pt_autograph.autograph.pyct import transformer
-from pt_autograph.autograph.utils import ag_logging as logging
-# from pt_autograph.eager import function
-from pt_autograph.util import tf_inspect
+from tensorflow.python.autograph import operators
+from tensorflow.python.autograph import utils
+from tensorflow.python.autograph.converters import arg_defaults
+from tensorflow.python.autograph.converters import asserts
+from tensorflow.python.autograph.converters import break_statements
+from tensorflow.python.autograph.converters import call_trees
+from tensorflow.python.autograph.converters import conditional_expressions
+from tensorflow.python.autograph.converters import continue_statements
+from tensorflow.python.autograph.converters import control_flow
+from tensorflow.python.autograph.converters import directives
+from tensorflow.python.autograph.converters import function_scopes
+from tensorflow.python.autograph.converters import lists
+from tensorflow.python.autograph.converters import logical_expressions
+from tensorflow.python.autograph.converters import return_statements
+from tensorflow.python.autograph.converters import slices
+from tensorflow.python.autograph.core import config
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.core import function_wrappers
+from tensorflow.python.autograph.core import naming
+from tensorflow.python.autograph.core import unsupported_features_checker
+from tensorflow.python.autograph.lang import special_functions
+from tensorflow.python.autograph.pyct import ast_util
+from tensorflow.python.autograph.pyct import loader
+from tensorflow.python.autograph.pyct import inspect_utils
+from tensorflow.python.autograph.pyct import origin_info
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import pretty_printer
+from tensorflow.python.autograph.pyct import qual_names
+from tensorflow.python.autograph.pyct import templates
+from tensorflow.python.autograph.pyct import transformer
+from tensorflow.python.autograph.utils import ag_logging as logging
+from tensorflow.python.eager import function
+from tensorflow.python.util import tf_inspect
 
 
 class _ConvertedEntityFactoryInfo(
@@ -436,8 +436,8 @@ def is_whitelisted(
     # longer be whitelisted.
 
     owner_class = inspect_utils.getmethodclass(o)
-    # if owner_class is function.TfMethodTarget:
-    #   owner_class = o.__self__.target_class
+    if owner_class is function.TfMethodTarget:
+      owner_class = o.__self__.target_class
     if owner_class is not None:
       if issubclass(owner_class, unittest.TestCase):
         logging.log(2, 'Whitelisted: %s: method of TestCase subclass', o)

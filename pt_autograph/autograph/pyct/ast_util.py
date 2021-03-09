@@ -22,10 +22,10 @@ import ast
 
 import gast
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import qual_names
-from pt_autograph.util import tf_inspect
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import qual_names
+from tensorflow.python.util import tf_inspect
 
 
 class CleanCopier(object):

@@ -20,8 +20,8 @@ from __future__ import print_function
 
 import enum
 
-from pt_autograph.autograph.pyct import qual_names
-from pt_autograph.autograph.utils import misc
+from tensorflow.python.autograph.pyct import qual_names
+from tensorflow.python.autograph.utils import misc
 
 
 class _NamingStyle(enum.Enum):

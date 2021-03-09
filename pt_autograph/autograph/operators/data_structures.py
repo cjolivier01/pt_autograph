@@ -20,14 +20,14 @@ from __future__ import print_function
 
 import collections
 
-# from pt_autograph.framework import constant_op
-# from pt_autograph.framework import dtypes
-# from pt_autograph.framework import ops
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.ops import array_ops
-# from pt_autograph.ops import control_flow_ops
-# from pt_autograph.ops import list_ops
-# from pt_autograph.ops import tensor_array_ops
+from tensorflow.python.framework import constant_op
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import control_flow_ops
+from tensorflow.python.ops import list_ops
+from tensorflow.python.ops import tensor_array_ops
 
 
 # TODO(mdan): Once control flow supports objects, repackage as a class.

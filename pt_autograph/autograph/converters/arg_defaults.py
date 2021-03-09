@@ -51,8 +51,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.pyct import parser
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.pyct import parser
 
 
 class _Function(object):

@@ -22,10 +22,10 @@ import collections
 
 import gast
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import loader
-from pt_autograph.autograph.pyct import pretty_printer
-from pt_autograph.autograph.pyct import templates
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import loader
+from tensorflow.python.autograph.pyct import pretty_printer
+from tensorflow.python.autograph.pyct import templates
 
 
 # TODO(znado): Use namedtuple.

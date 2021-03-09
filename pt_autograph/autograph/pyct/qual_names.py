@@ -29,8 +29,8 @@ import collections
 
 import gast
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import parser
 
 
 class CallerMustSetThis(object):

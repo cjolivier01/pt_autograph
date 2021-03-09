@@ -18,10 +18,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import templates
-from pt_autograph.autograph.pyct.static_analysis.annos import NodeAnno
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import templates
+from tensorflow.python.autograph.pyct.static_analysis.annos import NodeAnno
 
 
 class _Break(object):

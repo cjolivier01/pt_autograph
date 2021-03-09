@@ -27,10 +27,10 @@ import weakref
 import gast
 import six
 
-from pt_autograph.autograph.pyct import anno
-from pt_autograph.autograph.pyct import qual_names
-from pt_autograph.autograph.pyct import transformer
-from pt_autograph.autograph.pyct.static_analysis.annos import NodeAnno
+from tensorflow.python.autograph.pyct import anno
+from tensorflow.python.autograph.pyct import qual_names
+from tensorflow.python.autograph.pyct import transformer
+from tensorflow.python.autograph.pyct.static_analysis.annos import NodeAnno
 
 
 class Scope(object):

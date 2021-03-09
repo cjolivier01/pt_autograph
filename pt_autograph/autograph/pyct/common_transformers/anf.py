@@ -31,9 +31,9 @@ import collections
 import gast
 import six
 
-from pt_autograph.autograph.pyct import gast_util
-from pt_autograph.autograph.pyct import templates
-from pt_autograph.autograph.pyct import transformer
+from tensorflow.python.autograph.pyct import gast_util
+from tensorflow.python.autograph.pyct import templates
+from tensorflow.python.autograph.pyct import transformer
 
 
 class DummyGensym(object):

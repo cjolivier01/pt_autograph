@@ -64,121 +64,39 @@ import traceback
 
 import numpy as np
 
-from pt_autograph.autograph.operators import py_builtins
-from pt_autograph.autograph.operators import special_values
-from pt_autograph.autograph.utils import ag_logging
-from pt_autograph.autograph.utils import compat_util
-from pt_autograph.autograph.utils import misc
-from pt_autograph.autograph.utils import tensors
+from tensorflow.python.autograph.operators import py_builtins
+from tensorflow.python.autograph.operators import special_values
+from tensorflow.python.autograph.utils import ag_logging
+from tensorflow.python.autograph.utils import compat_util
+from tensorflow.python.autograph.utils import misc
+from tensorflow.python.autograph.utils import tensors
+from tensorflow.python.data.experimental.ops import scan_ops
+from tensorflow.python.data.experimental.ops import take_while_ops
+from tensorflow.python.data.ops import dataset_ops
+from tensorflow.python.data.ops import iterator_ops
+from tensorflow.python.framework import constant_op
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import func_graph
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import control_flow_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import tensor_array_ops
+from tensorflow.python.ops.ragged import ragged_tensor
+from tensorflow.python.util import lazy_loader
+from tensorflow.python.util import nest
 
-import torch
-
-from pt_autograph.ptxla.scope import (
-    get_matched_op_tag,
-    frontend_attribute_scope
-)
-
-# from pt_autograph.data.experimental.ops import scan_ops
-# from pt_autograph.data.experimental.ops import take_while_ops
-# from pt_autograph.data.ops import dataset_ops
-# from pt_autograph.data.ops import iterator_ops
-# from pt_autograph.framework import constant_op
-# from pt_autograph.framework import dtypes
-# from pt_autograph.framework import func_graph
-# from pt_autograph.framework import ops
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.ops import control_flow_ops
-# from pt_autograph.ops import math_ops
-# from pt_autograph.ops import tensor_array_ops
-# from pt_autograph.ops.ragged import ragged_tensor
-# from pt_autograph.util import lazy_loader
-#from pt_autograph.util import nest
 
 # TODO(b/145618471): Remove this dependency.
 # Lazy import to work around circular dependencies
-# input_lib = lazy_loader.LazyLoader(
-#     'input_lib', globals(),
-#     'pt_autograph.distribute.input_lib')
+input_lib = lazy_loader.LazyLoader(
+    'input_lib', globals(),
+    'tensorflow.python.distribute.input_lib')
 
 PYTHON_MAX_ITERATIONS = 100000000  # Fails in about one minute for empty loops.
 WARN_INEFFICIENT_UNROLL = True
 INEFFICIENT_UNROLL_MIN_ITERATIONS = 3000
 INEFFICIENT_UNROLL_MIN_OPS = 1
-
-
-#
-# PYTORCH control_flow_ops
-#
-class control_flow_ops(object):
-    """
-    Implement some control-flow ops
-    """
-    
-    @staticmethod
-    def unbool(val):
-        if val.dtype == torch.bool:
-            val = torch.tensor(
-                val.detach(),
-                device=val.device, 
-                dtype=torch.uint8,
-            )
-            if not len(val.shape):
-                val = torch.reshape(val, [1])
-        return val
-
-    @staticmethod
-    def normalize_value(val):
-        state = None
-        if isinstance(val, tuple):
-            if len(val) > 1:
-                assert len(val) == 2
-                state = val[1]
-            val = val[0]
-        return control_flow_ops.unbool(val), state
-    
-    @staticmethod
-    def cond(test_value, true_value, false_value):
-        state = None
-        if callable(test_value):
-            test_value = test_value()
-            test_value, state = control_flow_ops.normalize_value(
-                test_value
-            )
-        if callable(true_value):
-            true_value = true_value()
-            true_value, state = control_flow_ops.normalize_value(
-                true_value
-            )
-        if callable(false_value):
-            false_value = false_value()
-            false_value, state = control_flow_ops.normalize_value(
-                false_value
-            )
-        cond_value = torch.tensor(
-            test_value, 
-            device=test_value.device, 
-            dtype=torch.uint8,
-        )
-        return torch.where(
-            cond_value,
-            true_value, 
-            false_value
-        ), state
-
-
-# class nest(object):
-#     """
-#     TODO: implement or extract from TF
-#     """
-
-#     @staticmethod
-#     def assert_same_structure(init, entry, expand_composites):
-#         pass
-    
-#     @staticmethod
-#     def map_structure(fn, iter_entry_vars):
-#         assert False
-
 
 
 # TODO(mdan): Use the custom operator pattern instead of type dispatch.
@@ -232,8 +150,8 @@ def _verify_single_loop_var(
   if isinstance(exit_, (bool, int, float, str, np.ndarray)):
     exit_ = ops.convert_to_tensor_v2(exit_)
 
-  if (not torch.is_tensor(entry) or
-      not torch.is_tensor(exit_)):
+  if (not tensor_util.is_tensor(entry) or
+      not tensor_util.is_tensor(exit_)):
     return
 
   # TODO(mdan): Properly account for CompositeTensors.
@@ -332,8 +250,8 @@ def _verify_single_cond_var(name, body_var, orelse_var):
   if isinstance(orelse_var, (bool, int, float, str, np.ndarray)):
     orelse_var = ops.convert_to_tensor_v2(orelse_var)
 
-  if (not torch.is_tensor(body_var) or
-      not torch.is_tensor(orelse_var)):
+  if (not tensor_util.is_tensor(body_var) or
+      not tensor_util.is_tensor(orelse_var)):
     return
 
   # TODO(mdan): Properly account for CompositeTensors.
@@ -420,7 +338,7 @@ def for_stmt(iter_, extra_test, body, get_state, set_state, symbol_names, opts):
   Returns:
     Tuple containing the final state.
   """
-  if torch.is_tensor(iter_):
+  if tensor_util.is_tensor(iter_):
     if tensors.is_range_tensor(iter_):
       _tf_range_for_stmt(
           iter_, extra_test, body, get_state, set_state, symbol_names, opts)
@@ -428,27 +346,27 @@ def for_stmt(iter_, extra_test, body, get_state, set_state, symbol_names, opts):
       _known_len_tf_for_stmt(
           iter_, extra_test, body, get_state, set_state, symbol_names, opts)
 
-  # elif isinstance(iter_, dataset_ops.DatasetV2):
-  #   _tf_dataset_for_stmt(
-  #       iter_, extra_test, body, get_state, set_state, symbol_names, opts)
+  elif isinstance(iter_, dataset_ops.DatasetV2):
+    _tf_dataset_for_stmt(
+        iter_, extra_test, body, get_state, set_state, symbol_names, opts)
 
-  # elif isinstance(iter_, iterator_ops.OwnedIterator):
-  #   _tf_iterator_for_stmt(
-  #       iter_, extra_test, body, get_state, set_state, symbol_names, opts)
+  elif isinstance(iter_, iterator_ops.OwnedIterator):
+    _tf_iterator_for_stmt(
+        iter_, extra_test, body, get_state, set_state, symbol_names, opts)
 
-  # elif isinstance(iter_, ragged_tensor.RaggedTensor):
-  #   _tf_ragged_for_stmt(
-  #       iter_, extra_test, body, get_state, set_state, symbol_names, opts)
+  elif isinstance(iter_, ragged_tensor.RaggedTensor):
+    _tf_ragged_for_stmt(
+        iter_, extra_test, body, get_state, set_state, symbol_names, opts)
 
-  # elif isinstance(iter_, input_lib.DistributedIterator):
-  #   raise NotImplementedError(
-  #       'distributed iterators not supported yet, use the distributed dataset'
-  #       ' directly')
+  elif isinstance(iter_, input_lib.DistributedIterator):
+    raise NotImplementedError(
+        'distributed iterators not supported yet, use the distributed dataset'
+        ' directly')
 
   # TODO(mdan): Resolve the private access issue.
-  # elif isinstance(iter_, input_lib._IterableInput):  # pylint:disable=protected-access
-  #   _tf_distributed_iterable_for_stmt(
-  #       iter_, extra_test, body, get_state, set_state, symbol_names, opts)
+  elif isinstance(iter_, input_lib._IterableInput):  # pylint:disable=protected-access
+    _tf_distributed_iterable_for_stmt(
+        iter_, extra_test, body, get_state, set_state, symbol_names, opts)
 
   else:
     _py_for_stmt(iter_, extra_test, body, None, None)
@@ -786,60 +704,6 @@ def _tf_distributed_iterable_for_stmt(
   set_state(iter_.reduce(init_vars, reduce_body))
 
 
-def pt_while_stmt(test, body, get_state, set_state, symbol_names, opts):
-    """Functional form of a while statement.
-
-    The loop operates on a so-called state, which includes all symbols that are
-    variant across loop iterations. In what follows we refer to state as either
-    a tuple of entities that represent an actual state, or a list of arguments
-    of the corresponding types.
-
-    Args:
-      test: Callable with the state as arguments, and boolean return type. The
-        loop condition.
-      body: Callable with the state as arguments, and state as return type. The
-        actual loop body.
-      get_state: Additional callable which can capture additional state (such as
-        the values of composite symbols). This is only useful when staging the
-        loop.
-      set_state: Additional callable which save values captured by get_state back
-        into the Python environment. This is only useful when staging the loop.
-      symbol_names: Tuple containing the names of all loop variables.
-      opts: Optional dict of extra loop parameters.
-
-    Returns:
-      Tuple containing the final state.
-    """
-
-    # Evaluate the initial test once in order to do the dispatch. The evaluation
-    # is isolated to minimize unwanted side effects.
-    # TODO(mdan): Do a full iteration - some state types might lower to Tensor.
-    with frontend_attribute_scope(
-        get_matched_op_tag(),
-        'pt_while_stmt__test'
-    ):
-        init_test = test()
-
-    # TensorFlow: Multiple evaluations are acceptable in this case, so we're fine
-    # with the re-evaluation of `test` that `_tf_while_stmt` will make.
-    if tensors.is_dense_tensor(init_test):
-        _pt_while_stmt(test, body, get_state, set_state, symbol_names, opts)
-        return
-
-    # Normal Python: We already consumed one evaluation of `test`; consistently,
-    # unroll one iteration before dispatching to a normal loop.
-    # TODO(mdan): Push the "init_test" value via opts into _py_while_stmt?
-    if not init_test:
-        return
-    with frontend_attribute_scope(
-        get_matched_op_tag(),
-        'pt_while_stmt__body'
-    ):
-        body()
-
-    _py_while_stmt(test, body, get_state, set_state, opts)
-
-
 def while_stmt(test, body, get_state, set_state, symbol_names, opts):
   """Functional form of a while statement.
 
@@ -992,62 +856,9 @@ def _shape_invariants_mapping_to_positional_list(mapping, keys):
   return tuple(result)
 
 
-def _pt_while_stmt(test, body, get_state, set_state, symbol_names, opts):
-    """Overload of while_stmt that stages a TF while_stmt."""
-    init_vars = get_state()
-    _verify_loop_init_vars(init_vars, symbol_names)
-
-    def aug_test(*loop_vars):
-        set_state(loop_vars)
-        return test()
-
-    def aug_body(*loop_vars):
-        set_state(loop_vars)
-        body()
-        new_loop_vars = get_state()
-        #_verify_tf_loop_vars(
-            #init_vars, loop_vars, new_loop_vars, symbol_names, opts)
-        return new_loop_vars
-
-    # Non-v2 while_loop unpacks the results when there is only one return value.
-    # This enforces consistency across versions.
-    opts['return_same_structure'] = True
-
-    if 'shape_invariants' in opts:
-        opts['shape_invariants'] = _shape_invariants_mapping_to_positional_list(
-            opts['shape_invariants'], init_vars)
-
-    # TODO: make a tuple of all inputs and outputs?
-
-    print('Here we are in the _pt_while_stmt function')
-
-    if True:
-        # This isn't going to work at all,
-        # but let's recors it via the frontend
-        # attributes.
-        # Note that test isn't accessed, so won't
-        # be part of it.
-        with frontend_attribute_scope(
-            get_matched_op_tag(), 'while_test'
-        ):
-            # Should still be attached to the graph, but we'll have to find
-            # by a scan rather than postorder when we find a while body
-            test_results = aug_test(*init_vars)
-        with frontend_attribute_scope(
-            get_matched_op_tag(), 'while_body'
-        ):
-            results = aug_body(*init_vars)
-        final_loop_vars = results
-    else:
-        final_loop_vars = control_flow_ops.while_loop(
-            aug_test, aug_body, init_vars, **opts)
-    set_state(final_loop_vars)
-
-
 def _tf_while_stmt(test, body, get_state, set_state, symbol_names, opts):
   """Overload of while_stmt that stages a TF while_stmt."""
   init_vars = get_state()
-  #assert False
   _verify_loop_init_vars(init_vars, symbol_names)
 
   def aug_test(*loop_vars):
@@ -1142,11 +953,9 @@ def tf_if_stmt(cond, body, orelse, get_state, set_state, basic_symbol_names,
 
   def error_checking_orelse():
     result[orelse_branch] = orelse()
-    # TODO: still should verify somehow but tries to use too much
-    #       _pywrap_util
-    # if result[body_branch] is not None:
-    #   _verify_tf_cond_vars(result[body_branch], result[orelse_branch],
-    #                        basic_symbol_names + composite_symbol_names)
+    if result[body_branch] is not None:
+      _verify_tf_cond_vars(result[body_branch], result[orelse_branch],
+                           basic_symbol_names + composite_symbol_names)
     return result[orelse_branch]
 
   final_vars, final_state = control_flow_ops.cond(cond, error_checking_body,

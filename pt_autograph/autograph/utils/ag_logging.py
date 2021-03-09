@@ -21,11 +21,10 @@ from __future__ import print_function
 import os
 import sys
 import traceback
-import logging
 
 # TODO(mdan): Use a custom logger class.
-# from pt_autograph.platform import tf_logging as logging
-# from pt_autograph.util.tf_export import tf_export
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.util.tf_export import tf_export
 
 VERBOSITY_VAR_NAME = 'AUTOGRAPH_VERBOSITY'
 DEFAULT_VERBOSITY = 0
@@ -38,7 +37,7 @@ if hasattr(sys, 'ps1') or hasattr(sys, 'ps2'):
   echo_log_to_stdout = True
 
 
-#@tf_export('autograph.set_verbosity')
+@tf_export('autograph.set_verbosity')
 def set_verbosity(level, alsologtostdout=False):
   """Sets the AutoGraph verbosity level.
 
@@ -89,7 +88,7 @@ def set_verbosity(level, alsologtostdout=False):
   echo_log_to_stdout = alsologtostdout
 
 
-#@tf_export('autograph.trace')
+@tf_export('autograph.trace')
 def trace(*args):
   """Traces argument information at compilation time.
 

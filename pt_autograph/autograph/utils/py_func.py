@@ -20,9 +20,9 @@ from __future__ import print_function
 
 from collections import namedtuple
 
-# from pt_autograph.framework import dtypes
-# from pt_autograph.framework import tensor_util
-# from pt_autograph.ops import script_ops
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import script_ops
 
 
 class MatchDType(namedtuple('MatchDType', ('arg_number',))):

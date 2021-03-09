@@ -25,19 +25,19 @@ import sys
 
 import six
 
-from pt_autograph.autograph import operators
-from pt_autograph.autograph import utils
-from pt_autograph.autograph.core import config
-from pt_autograph.autograph.core import converter
-from pt_autograph.autograph.core import function_wrappers
-from pt_autograph.autograph.core import naming
-from pt_autograph.autograph.lang import special_functions
-from pt_autograph.autograph.pyct import loader
-from pt_autograph.autograph.pyct import origin_info
-from pt_autograph.autograph.pyct import parser
-from pt_autograph.autograph.pyct import pretty_printer
-from pt_autograph.autograph.pyct import transformer
-from pt_autograph.platform import test
+from tensorflow.python.autograph import operators
+from tensorflow.python.autograph import utils
+from tensorflow.python.autograph.core import config
+from tensorflow.python.autograph.core import converter
+from tensorflow.python.autograph.core import function_wrappers
+from tensorflow.python.autograph.core import naming
+from tensorflow.python.autograph.lang import special_functions
+from tensorflow.python.autograph.pyct import loader
+from tensorflow.python.autograph.pyct import origin_info
+from tensorflow.python.autograph.pyct import parser
+from tensorflow.python.autograph.pyct import pretty_printer
+from tensorflow.python.autograph.pyct import transformer
+from tensorflow.python.platform import test
 
 
 def whitelist(entity):
