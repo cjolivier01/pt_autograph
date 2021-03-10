@@ -35,14 +35,12 @@ import os
 import time
 import sys
 import logging
-import numpy as np
 
 # TORCH
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.fx as fx
 
 # PTXLA
 import torch_xla
@@ -54,7 +52,6 @@ from torch_xla.debug.graph_saver import save_tensors_graph
 
 # PT_AUTOGRAPH
 import pt_autograph
-import pt_autograph.flow.runner as runner
 
 # PT_AUTOGRAPH.PTXLA
 import pt_autograph.ptxla.scope
@@ -308,9 +305,6 @@ def train_mnist(FLAGS):
 
 
 def main(args):
-    import argparse
-    import traceback
-
     os.environ[
         'XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
     os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
@@ -323,6 +317,7 @@ def main(args):
     except Exception as e:
         msg = f"Unhandled exception: {e}"
         print(msg)
+        import traceback
         traceback.print_exc()
         time.sleep(1)  # Let any async stuff chill for a bit
         logging.getLogger().error(msg)
