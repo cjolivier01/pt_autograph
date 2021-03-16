@@ -78,7 +78,7 @@ FLAGS.with_while = False
 FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
-FLAGS.save_graph = False
+FLAGS.save_graph = True
 
 
 class MNIST(nn.Module):
