@@ -465,20 +465,10 @@ class PartitionScope {
     if (FrontendAttributePusher::IsAutogradThread()) {
       return Direction::BWD;
     }
-    if (name && is_backward_name(name)) {
-      return Direction::BWD;
-    }
     return Direction::FWD;
   }
 
  private:
-
-  static inline bool is_backward_name(const char *name) {
-    if (!FrontendAttributePusher::IsEnabled()) {
-      return false;
-    }
-    return ends_with(name, "_backward") || ends_with(name, "_bwd");
-  }
 
   static inline bool ends_with(std::string const & value, std::string const & ending) {
     if (ending.size() > value.size()) return false;
@@ -647,14 +637,6 @@ private:
     xla::FrontendAttributes save_;
     bool set_ = false;
 };
-
-#define DECLARE_XLA_PARTITION(__builder$)                    \
-  pytorch_ptag::FrontendAttributeSetter fattr(__builder$,    \
-    {{pytorch_ptag::PartitionScope::PartitionMatchName(\
-        !pytorch_ptag::PartitionScope::is_backward_name(__FUNCTION__), \
-        PartitionScope::MATCHED_XLA), \
-    pytorch_ptag::PartitionScope::MakePartitionName(__FUNCTION__)}} \
-  )
 
 #endif // PYTORCH_PTAG_NO_FA_SETTER
 
