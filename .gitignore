@@ -4,6 +4,9 @@
 /dist
 /build
 /venv
+/flow
+/toolchain
+/python
 *.pyc
 *.mdl
 *.dot
