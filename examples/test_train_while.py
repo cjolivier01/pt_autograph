@@ -19,12 +19,12 @@ def _preempt_uname():
     import platform
 
     platform._uname_cache = platform.uname_result(
-        system='Linux',
-        node='chriso-monster',
-        release='5.3.0-62-generic',
-        version='#56~18.04.1-Ubuntu SMP Wed Jun 24 16:17:03 UTC 2020',
-        machine='x86_64',
-        processor='',
+        system="Linux",
+        node="chriso-monster",
+        release="5.3.0-62-generic",
+        version="#56~18.04.1-Ubuntu SMP Wed Jun 24 16:17:03 UTC 2020",
+        machine="x86_64",
+        processor="",
     )
 
 
@@ -42,15 +42,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.fx as fx
 
 # PTXLA
-import torch_xla
-import torch_xla.distributed.data_parallel as dp
-import torch_xla.utils.utils as xu
-import torch_xla.core.xla_model as xm
-import torch_xla.test.test_utils as test_utils
-from torch_xla.debug.graph_saver import save_tensors_graph
+# import torch_xla
+# import torch_xla.distributed.data_parallel as dp
+# import torch_xla.utils.utils as xu
+# import torch_xla.core.xla_model as xm
+# import torch_xla.test.test_utils as test_utils
+# from torch_xla.debug.graph_saver import save_tensors_graph
 
 # PT_AUTOGRAPH
 import pt_autograph
@@ -63,17 +62,20 @@ import pt_autograph.ptxla.stats as stats
 # TEST UTILS (from ptxla)
 import args_parse
 
-FLAGS = args_parse.parse_common_options(datadir='/tmp/mnist-data',
-                                        batch_size=4,
-                                        momentum=0.5,
-                                        lr=0.01,
-                                        target_accuracy=98.0,
-                                        num_epochs=2)
+FLAGS = args_parse.parse_common_options(
+    datadir="/tmp/mnist-data",
+    batch_size=4,
+    momentum=0.5,
+    lr=0.01,
+    target_accuracy=98.0,
+    num_epochs=2,
+)
 
 FLAGS.steps_per_epoch = 50
 FLAGS.run_test = False
 FLAGS.step_print_interval = 10
 FLAGS.use_autograph = True
+#FLAGS.use_autograph = False
 FLAGS.with_while = False
 FLAGS.with_if = True
 FLAGS.log_steps = 1
@@ -120,18 +122,25 @@ def _train_update(device, step, loss, tracker, epoch, writer):
         epoch,
         summary_writer=writer,
     )
-    print(f'Getting loss took {dt} seconds')
+    print(f"Getting loss took {dt} seconds")
 
 
 def _save_checkpoint(args, device, step, model, is_epoch=False):
-    if is_epoch:
-        xm.master_print(f"Saving checkpoint at end of epoch")
-    else:
-        xm.master_print(f"Saving checkpoint as step closure of step : {step}")
+    # if is_epoch:
+    #     xm.master_print(f"Saving checkpoint at end of epoch")
+    # else:
+    #     xm.master_print(f"Saving checkpoint as step closure of step : {step}")
     file_name = f"test_train_mnist_cpk_{step}.mdl"
-    xm.save(model, file_name)
-    xm.master_print('done...')
-    xm.master_print(f"Checkpoint saved for device: {device}")
+    # xm.save(model, file_name)
+    # xm.master_print('done...')
+    # xm.master_print(f"Checkpoint saved for device: {device}")
+
+
+def fake_dataset(sample_count, batch_size, dims, dtype):
+    counter = 0
+    while counter < sample_count:
+        yield torch.ones(dims, dtype=dtype), torch.ones(batch_size, dtype=torch.int64)
+        counter += 1
 
 
 def train_mnist(FLAGS):
@@ -143,36 +152,40 @@ def train_mnist(FLAGS):
     dims = (FLAGS.batch_size, 1, 784)
 
     train_dataset_len = FLAGS.steps_per_epoch if FLAGS.steps_per_epoch else 60000
-    train_loader = xu.SampleGenerator(
-        data=(
-            torch.ones(
-                dims,
-                dtype=DTYPE,
-            ),
-            torch.ones(
-                FLAGS.batch_size,
-                dtype=torch.int64,
-            ),
-        ),
-        sample_count=train_dataset_len // FLAGS.batch_size //
-        xm.xrt_world_size(),
+    train_loader = fake_dataset(
+        train_dataset_len, FLAGS.batch_size, dims=dims, dtype=DTYPE
     )
+    # train_loader = xu.SampleGenerator(
+    #     data=(
+    #         torch.ones(
+    #             dims,
+    #             dtype=DTYPE,
+    #         ),
+    #         torch.ones(
+    #             FLAGS.batch_size,
+    #             dtype=torch.int64,
+    #         ),
+    #     ),
+    #     sample_count=train_dataset_len // FLAGS.batch_size //
+    #     xm.xrt_world_size(),
+    # )
 
-    devices = (xm.get_xla_supported_devices(
-        max_devices=FLAGS.num_cores) if FLAGS.num_cores != 0 else [])
+    # devices = (xm.get_xla_supported_devices(
+    #     max_devices=FLAGS.num_cores) if FLAGS.num_cores != 0 else [])
 
-    # Scale learning rate to num cores
-    lr = FLAGS.lr * max(len(devices), 1)
+    # # Scale learning rate to num cores
+    # lr = FLAGS.lr * max(len(devices), 1)
+    lr = FLAGS.lr
 
     model = MNIST(FLAGS)
-    model_parallel = dp.DataParallel(
-        model,
-        device_ids=devices,
-    )
+    # model_parallel = dp.DataParallel(
+    #     model,
+    #     device_ids=devices,
+    # )
 
     writer = None
-    if xm.is_master_ordinal():
-        writer = test_utils.get_summary_writer(FLAGS.logdir)
+    # if xm.is_master_ordinal():
+    #     writer = test_utils.get_summary_writer(FLAGS.logdir)
 
     #
     # Just some step closure output
@@ -180,13 +193,14 @@ def train_mnist(FLAGS):
     def train_output_fn(outputs, ctx, args, tracker):
         if ctx.step > 0 and args.log_steps and ctx.step % args.log_steps == 0:
             now_time = time.time()
-            if hasattr(ctx, 'start_time') and ctx.start_time:
+            if hasattr(ctx, "start_time") and ctx.start_time:
                 per_step_time = (now_time - ctx.start_time) / (
-                    ctx.step - ctx.last_step_timed)
+                    ctx.step - ctx.last_step_timed
+                )
                 steps_per_second = 1 / per_step_time
                 print(
-                    f'[{xm.get_ordinal()}] Round-trip step time: '
-                    f'{per_step_time} seconds, steps per second: {steps_per_second}'
+                    f"[{xm.get_ordinal()}] Round-trip step time: "
+                    f"{per_step_time} seconds, steps per second: {steps_per_second}"
                 )
                 if tracker:
                     _train_update(
@@ -197,7 +211,7 @@ def train_mnist(FLAGS):
                         epoch=epoch,
                         writer=writer,
                     )
-                print(f'BEGIN Train step {ctx.step}')
+                print(f"BEGIN Train step {ctx.step}")
                 ctx.start_time = time.time()
                 ctx.last_step_timed = ctx.step
             else:
@@ -212,16 +226,13 @@ def train_mnist(FLAGS):
         lr_adder = 0.0
 
         loss_fn = nn.NLLLoss()
-        optimizer = context.getattr_or(
-            'optimizer',
-            lambda: optim.SGD(
-                model.parameters(),
-                lr=lr + lr_adder,
-                momentum=FLAGS.momentum,
-            ),
+        optimizer = optim.SGD(
+            model.parameters(),
+            lr=lr + lr_adder,
+            momentum=FLAGS.momentum,
         )
 
-        tracker = xm.RateTracker()
+        # tracker = xm.RateTracker()
 
         model.train()
         loss = None
@@ -231,7 +242,7 @@ def train_mnist(FLAGS):
         #
         def train_inner_loop_fn(batch, ctx):
             step = ctx.step
-            print(f'Step {step}')
+            print(f"Step {step}")
             data = batch[0]
             target = batch[1]
             optimizer.zero_grad()
@@ -239,41 +250,39 @@ def train_mnist(FLAGS):
 
             loss = loss_fn(output, target)
             loss.backward()
+            optimizer.step()
+            # xm.optimizer_step(
+            #     optimizer,
+            #     barrier=False,
+            # )
 
-            xm.optimizer_step(
-                optimizer,
-                barrier=False,
-            )
+            # if (FLAGS.log_steps != 0
+            #         and (FLAGS.log_steps == 1 or
+            #              (step > 0 and step % FLAGS.log_steps == 0))):
+            # xm.add_step_closure(
+            #     _train_update,
+            #     args=(device, step, loss, tracker, epoch, writer),
+            # )
 
-            if (FLAGS.log_steps != 0
-                    and (FLAGS.log_steps == 1 or
-                         (step > 0 and step % FLAGS.log_steps == 0))):
-                xm.add_step_closure(
-                    _train_update,
-                    args=(device, step, loss, tracker, epoch, writer),
-                )
-
-            if step == 0:
-                xm.master_print(f"End TRAIN step {step}")
+            # if step == 0:
+            #     xm.master_print(f"End TRAIN step {step}")
 
             ctx.step += 1
             print(f"loss is on device: {loss.device}")
 
             if FLAGS.save_graph and ctx.step == 2:
                 tensors = [loss] + list(model.parameters())
-                save_tensors_graph(
-                    os.getcwd(), 'loss', tensors
-                )
+                #save_tensors_graph(os.getcwd(), "loss", tensors)
 
             return [loss]
 
         #
         # Train Step Loop
         #
-        print('Starting new epoch train loop... (epoch={epoch})')
+        print("Starting new epoch train loop... (epoch={epoch})")
         for step, (data, target) in enumerate(loader):
-            if step % FLAGS.step_print_interval == 0:
-                xm.master_print(f"Begin TRAIN Step: {step}")
+            # if step % FLAGS.step_print_interval == 0:
+            #     xm.master_print(f"Begin TRAIN Step: {step}")
             context.step = step
 
             if FLAGS.use_fx:
@@ -281,29 +290,33 @@ def train_mnist(FLAGS):
                 assert False  # Will do this shortly
             elif FLAGS.use_autograph:
                 outputs = pt_autograph.flow.runner.maybe_run_converted(
-                    train_inner_loop_fn, (data, target), context)
+                    train_inner_loop_fn, (data, target), context
+                )
             else:
                 outputs = train_inner_loop_fn((data, target), context)
 
-        xm.master_print(f"Saving model...")
+        # xm.master_print(f"Saving model...")
         _save_checkpoint(FLAGS, device, None, model, is_epoch=True)
-        xm.master_print(f"Model saved")
+        # xm.master_print(f"Model saved")
         return loss
 
     #
     # Epoch loop
     #
     for epoch in range(1, FLAGS.num_epochs + 1):
-        device = xm.xla_device()
-        ctx = dp.Context(device=device)
-        ctx.tracker = xm.RateTracker()
+        # device = xm.xla_device()
+        device = "cpu"
+
+        class Context(object):
+            pass
+
+        ctx = Context()
+        # ctx = dp.Context(device=device)
+        # ctx.tracker = xm.RateTracker()
         ctx.step = 0
-        loss = model_parallel(train_loop_fn, train_loader)
+        loss = train_loop_fn(model, train_loader, device=device, context=ctx)
 
-        if FLAGS.metrics_debug:
-            xm.master_print(met.metrics_report())
-
-    test_utils.close_summary_writer(writer)
+    # test_utils.close_summary_writer(writer)
     return loss
 
 
@@ -311,10 +324,10 @@ def main(args):
     import argparse
     import traceback
 
-    os.environ[
-        'XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
-    os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
-    os.environ['SAVE_GRAPH_FMT'] = 'dot'
+    # os.environ[
+    #     'XRT_DEVICE_MAP'] = 'CPU:0;/job:localservice/replica:0/task:0/device:XLA_CPU:0'
+    # os.environ['XRT_WORKERS'] = 'localservice:0;grpc://localhost:40934'
+    # os.environ['SAVE_GRAPH_FMT'] = 'dot'
 
     try:
         train_mnist(FLAGS)
@@ -326,14 +339,14 @@ def main(args):
         traceback.print_exc()
         time.sleep(1)  # Let any async stuff chill for a bit
         logging.getLogger().error(msg)
-        stats.print_stats(
-            prefix_text="%ERROR_STATS_BEGIN%",
-            suffix_text="%ERROR_STATS_END%",
-            include_metrics=True,
-        )
+        # stats.print_stats(
+        #     prefix_text="%ERROR_STATS_BEGIN%",
+        #     suffix_text="%ERROR_STATS_END%",
+        #     include_metrics=True,
+        # )
         raise
 
 
 # Run the tests.
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1:])

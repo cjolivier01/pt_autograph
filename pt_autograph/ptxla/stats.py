@@ -16,7 +16,7 @@
 # under the License.
 
 import json
-import torch_xla
+#import torch_xla
 import re
 
 
@@ -24,22 +24,22 @@ def _snake_case_to_camel_case(name):
   return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
 
-def get_counter_stats(filter=None):
-  stats = dict()
-  for counter_name in torch_xla.debug.metrics.counter_names():
-    if filter and filter not in counter_name:
-      continue
-    stats[counter_name] = torch_xla.debug.metrics.counter_value(counter_name)
-  return stats
+# def get_counter_stats(filter=None):
+#   stats = dict()
+#   for counter_name in torch_xla.debug.metrics.counter_names():
+#     if filter and filter not in counter_name:
+#       continue
+#     stats[counter_name] = torch_xla.debug.metrics.counter_value(counter_name)
+#   return stats
 
 
-def get_metrics(filter=None):
-  stats = dict()
-  for metric_name in torch_xla.debug.metrics.metric_names():
-    if filter and filter not in metric_name:
-      continue
-    stats[metric_name] = torch_xla.debug.metrics.metric_data(metric_name)
-  return stats
+# def get_metrics(filter=None):
+#   stats = dict()
+#   for metric_name in torch_xla.debug.metrics.metric_names():
+#     if filter and filter not in metric_name:
+#       continue
+#     stats[metric_name] = torch_xla.debug.metrics.metric_data(metric_name)
+#   return stats
 
 
 class Stats:
