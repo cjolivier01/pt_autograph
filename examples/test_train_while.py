@@ -52,8 +52,9 @@ import torch.optim as optim
 # from torch_xla.debug.graph_saver import save_tensors_graph
 
 # PT_AUTOGRAPH
-import pt_autograph
-from pt_autograph.flow.runner import ag_function
+#import pt_autograph
+#from pt_autograph.flow.runner import ag_function
+from pt_autograph import ag_function
 
 # PT_AUTOGRAPH.PTXLA
 # import pt_autograph.ptxla.scope
