@@ -51,3 +51,20 @@ def maybe_run_converted(
         options=converter.STANDARD_OPTIONS,
     )
     return result
+
+
+def ag_function(enabled=False):
+    """
+    AutoGraph function decorator
+    """
+    def decorator(func):
+        def _wrapper(*args, **kwargs):
+            if not enabled:
+                return func(*args, **kwargs)
+            return maybe_run_converted(
+                func,
+                *args,
+                **kwargs,
+            )
+        return _wrapper
+    return decorator

@@ -53,11 +53,11 @@ import torch.optim as optim
 
 # PT_AUTOGRAPH
 import pt_autograph
-import pt_autograph.flow.runner as runner
+from pt_autograph.flow.runner import ag_function
 
 # PT_AUTOGRAPH.PTXLA
-import pt_autograph.ptxla.scope
-import pt_autograph.ptxla.stats as stats
+# import pt_autograph.ptxla.scope
+# import pt_autograph.ptxla.stats as stats
 
 # TEST UTILS (from ptxla)
 import args_parse
@@ -81,7 +81,6 @@ FLAGS.with_if = True
 FLAGS.log_steps = 1
 FLAGS.use_fx = False
 FLAGS.save_graph = True
-
 
 class MNIST(nn.Module):
     def __init__(self, flags):
@@ -240,6 +239,7 @@ def train_mnist(FLAGS):
         #
         # Train Step Function
         #
+        @ag_function(enabled=FLAGS.use_autograph)
         def train_inner_loop_fn(batch, ctx):
             step = ctx.step
             print(f"Step {step}")
@@ -272,7 +272,7 @@ def train_mnist(FLAGS):
 
             if FLAGS.save_graph and ctx.step == 2:
                 tensors = [loss] + list(model.parameters())
-                #save_tensors_graph(os.getcwd(), "loss", tensors)
+                # save_tensors_graph(os.getcwd(), "loss", tensors)
 
             return [loss]
 
@@ -285,15 +285,15 @@ def train_mnist(FLAGS):
             #     xm.master_print(f"Begin TRAIN Step: {step}")
             context.step = step
 
-            if FLAGS.use_fx:
-                assert not FLAGS.use_autograph
-                assert False  # Will do this shortly
-            elif FLAGS.use_autograph:
-                outputs = pt_autograph.flow.runner.maybe_run_converted(
-                    train_inner_loop_fn, (data, target), context
-                )
-            else:
-                outputs = train_inner_loop_fn((data, target), context)
+            # if FLAGS.use_fx:
+            #     assert not FLAGS.use_autograph
+            #     assert False  # Will do this shortly
+            # elif FLAGS.use_autograph:
+            #     outputs = pt_autograph.flow.runner.maybe_run_converted(
+            #         train_inner_loop_fn, (data, target), context
+            #     )
+            # else:
+            outputs = train_inner_loop_fn((data, target), context)
 
         # xm.master_print(f"Saving model...")
         _save_checkpoint(FLAGS, device, None, model, is_epoch=True)
