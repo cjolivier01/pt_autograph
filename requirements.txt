@@ -1,6 +1,6 @@
-torch
-torchvision
-torch_xla
+# torch
+# torchvision
+# torch_xla
 astunparse
 six
 gast==0.3.3

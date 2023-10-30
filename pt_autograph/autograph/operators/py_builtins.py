@@ -171,14 +171,14 @@ def abs_(x):
 
 
 def _tf_abs(x):
-  return math_ops.abs(x)
+  return torch.abs(x)
 
 
 def _tf_dataset_abs(x):
   specs = nest.flatten(x.element_spec)
   if len(specs) == 1:
-    return x.map(math_ops.abs)
-  return x.map(lambda *e: nest.map_structure(math_ops.abs, e))
+    return x.map(torch.abs)
+  return x.map(lambda *e: nest.map_structure(torch.abs, e))
 
 
 def _py_abs(x):
@@ -193,9 +193,9 @@ def float_(x=0):
 
 def _tf_float(x):
   # TODO(mdan): We shouldn't assume float32.
-  if x.dtype == dtypes.string:
-    return gen_parsing_ops.string_to_number(x, out_type=dtypes.float32)
-  return math_ops.cast(x, dtype=dtypes.float32)
+  if x.dtype == torch.int8:
+    return gen_parsing_ops.string_to_number(x, out_type=torch.float32)
+  return x.to(torch.float32)
 
 
 def _py_float(x):
@@ -213,9 +213,9 @@ def _tf_int(x, base):
     raise NotImplementedError('base {} not supported for int'.format(base))
 
   # TODO(mdan): We shouldn't assume int32.
-  if x.dtype == dtypes.string:
-    return gen_parsing_ops.string_to_number(x, out_type=dtypes.int32)
-  return math_ops.cast(x, dtype=dtypes.int32)
+  if x.dtype == torch.int8:
+    return gen_parsing_ops.string_to_number(x, out_type=torch.int32)
+  return torch.to(torch.int32)
 
 
 def _py_int(x, base):
