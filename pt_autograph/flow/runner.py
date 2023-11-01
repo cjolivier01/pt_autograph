@@ -51,3 +51,10 @@ def maybe_run_converted(
         options=converter.STANDARD_OPTIONS,
     )
     return result
+
+
+def pt_function(func):
+    def wrapper(*args, **kwargs):
+        result = maybe_run_converted(func, *args, **kwargs)
+        return result
+    return wrapper

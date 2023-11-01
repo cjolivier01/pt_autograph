@@ -7,5 +7,6 @@
 *.pyc
 *.mdl
 *.dot
+/*.so
 /pt_autograph.egg-info
 browse.vsc.db*
